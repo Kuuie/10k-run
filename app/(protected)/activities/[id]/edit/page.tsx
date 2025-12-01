@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { deleteActivityAction, updateActivityAction } from "@/app/actions";
-import { requireSession } from "@/lib/auth";
+import { fetchProfile, requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
 import type { ActivitiesRow } from "@/lib/supabase/types";
 
@@ -10,12 +10,13 @@ export default async function EditActivityPage({
   params: { id: string };
 }) {
   const { supabase, userId } = await requireSession();
+  const profile = await fetchProfile(supabase, userId);
   const challenge = await getActiveChallenge(supabase);
   const { data: activity } = await supabase
     .from("activities")
     .select("*")
     .eq("id", params.id)
-    .eq("user_id", userId)
+    .maybeSingle();
     .maybeSingle();
 
   if (!activity) {

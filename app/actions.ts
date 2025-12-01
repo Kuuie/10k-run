@@ -7,6 +7,7 @@ import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { getActiveChallenge } from "@/lib/challenge";
 import { recomputeWeeklyResult } from "@/lib/weekly";
 import type { ChallengesRow, TablesInsert } from "@/lib/supabase/types";
+import { fetchProfile } from "@/lib/auth";
 
 export type SignInState = {
   message?: string;
@@ -21,7 +22,7 @@ const getSiteBase = () => {
   const trimmed = (envUrl || "").replace(/\/$/, "");
   if (trimmed) return trimmed;
   return process.env.NODE_ENV === "production"
-    ? "https://10k-run-git-main-andrew-khuus-projects.vercel.app"
+    ? "https://10k-run.vercel.app"
     : "http://localhost:3000";
 };
 
@@ -142,6 +143,7 @@ export const updateActivityAction = async (
     data: { session },
   } = await supabase.auth.getSession();
   if (!session?.user) redirect("/");
+  const profile = await fetchProfile(supabase, session.user.id);
 
   const challenge = await getActiveChallenge(supabase);
   const payload = {
@@ -155,11 +157,11 @@ export const updateActivityAction = async (
     screenshot_url: (formData.get("screenshot_url") as string) || null,
   };
 
-  await supabase
-    .from("activities")
-    .update(payload)
-    .eq("id", activityId)
-    .eq("user_id", session.user.id);
+  const query = supabase.from("activities").update(payload).eq("id", activityId);
+  if (profile?.role !== "admin") {
+    query.eq("user_id", session.user.id);
+  }
+  await query;
 
   await recomputeWeeklyResult(supabase, {
     userId: session.user.id,
@@ -178,6 +180,7 @@ export const deleteActivityAction = async (activityId: string) => {
     data: { session },
   } = await supabase.auth.getSession();
   if (!session?.user) redirect("/");
+  const profile = await fetchProfile(supabase, session.user.id);
   const challenge = await getActiveChallenge(supabase);
 
   const { data: activity } = await supabase
@@ -186,7 +189,11 @@ export const deleteActivityAction = async (activityId: string) => {
     .eq("id", activityId)
     .maybeSingle();
 
-  await supabase.from("activities").delete().eq("id", activityId);
+  const del = supabase.from("activities").delete().eq("id", activityId);
+  if (profile?.role !== "admin") {
+    del.eq("user_id", session.user.id);
+  }
+  await del;
 
   if (activity?.activity_date) {
     await recomputeWeeklyResult(supabase, {
