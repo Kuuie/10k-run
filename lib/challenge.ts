@@ -23,7 +23,7 @@ export const getActiveChallenge = async (
   if (data) return data;
 
   const start = new Date();
-  const payload = {
+  const payload: Partial<ChallengesRow> = {
     name: "10K Weekly Movement Challenge",
     description: "Run / walk / jog 10 km every week.",
     start_date: start.toISOString().slice(0, 10),
