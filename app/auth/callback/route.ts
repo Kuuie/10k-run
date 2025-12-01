@@ -5,7 +5,10 @@ import type { Database } from "@/lib/supabase/types";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
+  const code =
+    searchParams.get("code") ||
+    searchParams.get("token") ||
+    searchParams.get("token_hash");
   const next = searchParams.get("next") || "/dashboard";
 
   const cookieStore = await cookies();

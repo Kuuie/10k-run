@@ -3,19 +3,22 @@ export type WeekRange = {
   end: Date;
 };
 
+export const formatDateLocal = (date: Date) =>
+  date.toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+
 export const getWeekRange = (date: Date, weekStartDay: number): WeekRange => {
   const day = date.getDay();
   const distanceFromStart = (day - weekStartDay + 7) % 7;
-  const start = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  start.setUTCDate(start.getUTCDate() - distanceFromStart);
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  start.setDate(start.getDate() - distanceFromStart);
   const end = new Date(start);
-  end.setUTCDate(start.getUTCDate() + 6);
+  end.setDate(start.getDate() + 6);
   return { start, end };
 };
 
 export const formatWeekLabel = (range: WeekRange) => {
-  const startStr = range.start.toISOString().slice(0, 10);
-  const endStr = range.end.toISOString().slice(0, 10);
+  const startStr = formatDateLocal(range.start);
+  const endStr = formatDateLocal(range.end);
   return `${startStr} → ${endStr}`;
 };
 

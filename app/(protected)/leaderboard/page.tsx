@@ -4,7 +4,7 @@ import {
   getCurrentWeekLeaderboard,
   getOverallStats,
 } from "@/lib/challenge";
-import { calculateStreak, getWeekRange } from "@/lib/week";
+import { calculateStreak, formatDateLocal, getWeekRange } from "@/lib/week";
 
 export default async function LeaderboardPage() {
   const { supabase } = await requireSession();
@@ -32,8 +32,7 @@ export default async function LeaderboardPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">This week</h2>
           <span className="text-xs text-slate-500">
-            {currentWeek.start.toISOString().slice(0, 10)} →{" "}
-            {currentWeek.end.toISOString().slice(0, 10)}
+            {formatDateLocal(currentWeek.start)} → {formatDateLocal(currentWeek.end)}
           </span>
         </div>
         <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
