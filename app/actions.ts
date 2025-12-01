@@ -40,7 +40,7 @@ const getOrCreateChallenge = async (
 
   const { data: created, error: createError } = await supabase
     .from("challenges")
-    .insert(payload as TablesInsert<"challenges">)
+    .insert([payload])
     .select("*")
     .single();
 
