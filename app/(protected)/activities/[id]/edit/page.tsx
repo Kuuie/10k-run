@@ -37,7 +37,7 @@ export default async function EditActivityPage({
             <select
               name="activity_type"
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
-              defaultValue={activity.activity_type}
+              defaultValue={(activity as any)?.activity_type}
             >
               <option value="run">Run</option>
               <option value="walk">Walk</option>
