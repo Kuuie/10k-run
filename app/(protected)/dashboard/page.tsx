@@ -6,6 +6,7 @@ import {
   getUserWeeklyResults,
 } from "@/lib/challenge";
 import {
+  DEFAULT_TZ,
   calculateStreak,
   formatDateLocal,
   formatDateLocalTz,
@@ -72,7 +73,7 @@ export default async function DashboardPage() {
   const dayPills = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(week.start);
     d.setDate(d.getDate() + i);
-    const iso = formatDateLocalTz(d, Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const iso = formatDateLocalTz(d, DEFAULT_TZ);
     return {
       iso,
       label: d.toLocaleDateString("en-US", {
@@ -80,7 +81,7 @@ export default async function DashboardPage() {
         month: "short",
         day: "numeric",
       }),
-      isToday: iso === formatDateLocal(today),
+      isToday: iso === formatDateLocalTz(today, DEFAULT_TZ),
     };
   });
 

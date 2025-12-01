@@ -2,13 +2,8 @@ import { notFound } from "next/navigation";
 import { deleteActivityAction, updateActivityAction } from "@/app/actions";
 import { fetchProfile, requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
+import { todayLocalIso } from "@/lib/week";
 import type { ActivitiesRow } from "@/lib/supabase/types";
-
-const todayLocalIso = () => {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  return now.toISOString().slice(0, 10);
-};
 
 export default async function EditActivityPage({
   params,
@@ -18,14 +13,28 @@ export default async function EditActivityPage({
   const { supabase, userId } = await requireSession();
   const profile = await fetchProfile(supabase, userId);
   const challenge = await getActiveChallenge(supabase);
-  const { data: activity } = await supabase
-    .from("activities")
-    .select("*")
-    .eq("id", params.id)
-    .maybeSingle();
+  let activity: ActivitiesRow | null = null;
+  try {
+    const { data, error } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("id", params.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) activity = data as ActivitiesRow;
+  } catch (err) {
+    console.error("Failed to load activity", err);
+  }
 
   if (!activity) {
-    notFound();
+    return (
+      <div className="max-w-2xl animate-slide-up">
+        <h1 className="text-2xl font-semibold">Activity not found</h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Either this activity does not exist or you do not have access.
+        </p>
+      </div>
+    );
   }
 
   const activityData = activity as ActivitiesRow;

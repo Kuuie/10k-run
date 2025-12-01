@@ -3,16 +3,50 @@ export type WeekRange = {
   end: Date;
 };
 
-export const formatDateLocal = (date: Date) =>
-  date.toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+export const DEFAULT_TZ =
+  process.env.NEXT_PUBLIC_TIME_ZONE ||
+  process.env.TIME_ZONE ||
+  process.env.TZ ||
+  "Australia/Melbourne";
 
-export const formatDateLocalTz = (date: Date, timeZone?: string) =>
-  new Intl.DateTimeFormat("en-CA", { timeZone }).format(date);
+const getDatePartsInTz = (date: Date, timeZone = DEFAULT_TZ) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const map: Record<string, string> = {};
+  parts.forEach((p) => {
+    if (p.type === "year" || p.type === "month" || p.type === "day") {
+      map[p.type] = p.value;
+    }
+  });
+  return map;
+};
+
+export const formatDateLocal = (date: Date) =>
+  formatDateLocalTz(date, DEFAULT_TZ);
+
+export const formatDateLocalTz = (date: Date, timeZone = DEFAULT_TZ) => {
+  const map = getDatePartsInTz(date, timeZone);
+  return `${map.year}-${map.month}-${map.day}`;
+};
+
+export const todayLocalIso = (timeZone = DEFAULT_TZ) =>
+  formatDateLocalTz(new Date(), timeZone);
+
+const zonedStartOfDay = (date: Date, timeZone = DEFAULT_TZ) => {
+  const map = getDatePartsInTz(date, timeZone);
+  // Construct a date at local midnight (interpreted in local time when rendered).
+  return new Date(`${map.year}-${map.month}-${map.day}T00:00:00`);
+};
 
 export const getWeekRange = (date: Date, weekStartDay: number): WeekRange => {
   const day = date.getDay();
   const distanceFromStart = (day - weekStartDay + 7) % 7;
-  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const start = zonedStartOfDay(date);
   start.setDate(start.getDate() - distanceFromStart);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);

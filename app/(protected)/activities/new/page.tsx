@@ -1,11 +1,7 @@
 import { addActivityAction } from "@/app/actions";
 import { requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
-const todayLocalIso = () => {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  return now.toISOString().slice(0, 10);
-};
+import { todayLocalIso } from "@/lib/week";
 
 export default async function NewActivityPage() {
   const { supabase } = await requireSession();
