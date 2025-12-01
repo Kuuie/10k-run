@@ -164,31 +164,32 @@ export default async function AdminPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {(weeklyResults ?? []).map((wr) => {
+                const wrRow = wr as any;
                 const setTrue = overrideWeeklyResultAction.bind(
                   null,
-                  wr.id,
+                  wrRow.id,
                   true
                 );
                 const setFalse = overrideWeeklyResultAction.bind(
                   null,
-                  wr.id,
+                  wrRow.id,
                   false
                 );
-                const user = (wr as any).users;
+                const user = wrRow.users;
                 return (
-                  <tr key={wr.id}>
+                  <tr key={wrRow.id}>
                     <td className="px-4 py-3 font-medium text-slate-900">
                       {user?.name || user?.email || "User"}
                     </td>
                     <td className="px-4 py-3">
-                      {wr.week_start_date} → {wr.week_end_date}
+                      {wrRow.week_start_date} → {wrRow.week_end_date}
                     </td>
                     <td className="px-4 py-3">
-                      {Number(wr.total_distance_km).toFixed(1)} km
+                      {Number(wrRow.total_distance_km).toFixed(1)} km
                     </td>
                     <td className="px-4 py-3">
-                      {wr.met_target ? "✅" : "❌"}
-                      {wr.overridden_by_admin && (
+                      {wrRow.met_target ? "✅" : "❌"}
+                      {wrRow.overridden_by_admin && (
                         <span className="ml-2 text-xs text-amber-600">
                           (overridden)
                         </span>
