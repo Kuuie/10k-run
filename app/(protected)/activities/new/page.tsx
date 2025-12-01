@@ -8,7 +8,7 @@ export default async function NewActivityPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl animate-slide-up">
       <h1 className="text-2xl font-semibold">Add activity</h1>
       <p className="mt-1 text-sm text-slate-600">
         Log run / walk / jog distance toward your weekly {challenge.weekly_distance_target_km} km goal.

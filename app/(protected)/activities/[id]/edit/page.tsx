@@ -27,7 +27,7 @@ export default async function EditActivityPage({
   const updateAction = updateActivityAction.bind(null, params.id);
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl animate-slide-up">
       <h1 className="text-2xl font-semibold">Edit activity</h1>
       <form
         action={updateAction}

@@ -31,7 +31,7 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="animate-slide-up">
         <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">
           Admin
         </p>
@@ -41,7 +41,7 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-1">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Invite user</h2>
           <span className="text-xs text-slate-500">
@@ -74,7 +74,7 @@ export default async function AdminPage() {
         </form>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Users</h2>
           <span className="text-xs text-slate-500">Toggle active/inactive</span>
@@ -144,7 +144,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Weekly overrides</h2>
           <span className="text-xs text-slate-500">

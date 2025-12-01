@@ -81,16 +81,16 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">
+        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 animate-slide-up">
           Hello, {displayName}
         </p>
-        <h1 className="text-3xl font-semibold">Dashboard</h1>
-        <p className="text-slate-600">
+        <h1 className="text-3xl font-semibold animate-slide-up delay-1">Dashboard</h1>
+        <p className="text-slate-600 animate-slide-up delay-2">
           Track your weekly 10 km progress, streaks, and recent activities.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm">
+      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700">
@@ -118,8 +118,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="grid gap-4 md:grid-cols-3 animate-slide-up delay-3">
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-700">This Week</p>
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4">
           <p className="text-sm font-medium text-slate-700">Current streak</p>
           <p className="mt-2 text-3xl font-semibold">{streak} week(s)</p>
           <p className="mt-1 text-sm text-slate-600">

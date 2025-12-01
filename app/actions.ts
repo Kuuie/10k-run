@@ -13,6 +13,12 @@ export type SignInState = {
   error?: string;
 };
 
+const getSiteBase = () => {
+  const envUrl = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  const trimmed = envUrl.replace(/\/$/, "");
+  return trimmed || "http://localhost:3000";
+};
+
 const getOrCreateChallenge = async (
   userId: string | null,
   fallbackName = "10K Weekly Movement Challenge"
@@ -65,8 +71,7 @@ export const signInWithEmail = async (
   }
 
   const supabase = await createServerSupabaseClient();
-  const base =
-    process.env.SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+  const base = getSiteBase();
   const redirectTo = `${base}/auth/callback?next=/dashboard`;
 
   try {

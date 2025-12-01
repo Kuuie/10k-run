@@ -18,7 +18,7 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-slide-up">
         <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">
           Team board
         </p>
@@ -28,7 +28,7 @@ export default async function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">This week</h2>
           <span className="text-xs text-slate-500">
@@ -73,7 +73,7 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Overall</h2>
           <span className="text-xs text-slate-500">
