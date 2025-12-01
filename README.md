@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 10K Weekly Movement Challenge
 
-## Getting Started
+Minimal Next.js + Supabase app to run an internal “10 km per week” run/walk/jog challenge with email auth, streaks, weekly leaderboard, and an admin panel.
 
-First, run the development server:
+### Stack
+- Next.js (App Router, TypeScript)
+- Tailwind CSS
+- Supabase (Auth, Postgres, Storage optional for screenshots)
+- Vercel-ready
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Environment
+Copy `.env.example` to `.env.local` and fill:
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=   # server-only, for admin actions
+SITE_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Database
+Run `supabase/schema.sql` in the Supabase SQL editor or via `supabase db push` to create tables, enums, policies, and the user mirror trigger.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Tables: `users`, `challenges`, `activities`, `weekly_results`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Local dev
+```bash
+npm install
+npm run dev
+```
+Visit http://localhost:3000. Use “Send sign-in link” to log in via Supabase magic link.
 
-## Learn More
+### Deployment
+- Set the same env vars on Vercel.
+- Ensure `SUPABASE_SERVICE_ROLE_KEY` is added as an encrypted env var (server only).
+- Deploy via `vercel` or GitHub integration.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Features
+- Email auth (Supabase magic links)
+- Dashboard: weekly total vs 10 km goal, streak, recent weeks, recent activities, add/edit/delete activity
+- Leaderboard: current week totals + overall streak/total km
+- Admin: invite users, toggle active/inactive, override weekly results
+- Weekly logic: week_start_day respected, streak computed from consecutive met weeks
+- TODO: OCR hook placeholder near screenshot URL input
