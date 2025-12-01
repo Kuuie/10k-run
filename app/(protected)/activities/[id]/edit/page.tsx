@@ -17,7 +17,6 @@ export default async function EditActivityPage({
     .select("*")
     .eq("id", params.id)
     .maybeSingle();
-    .maybeSingle();
 
   if (!activity) {
     notFound();

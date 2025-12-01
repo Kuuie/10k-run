@@ -1,11 +1,12 @@
 import { addActivityAction } from "@/app/actions";
 import { requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
+import { formatDateLocal } from "@/lib/week";
 
 export default async function NewActivityPage() {
   const { supabase } = await requireSession();
   const challenge = await getActiveChallenge(supabase);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = formatDateLocal(new Date());
 
   return (
     <div className="max-w-2xl animate-slide-up">
