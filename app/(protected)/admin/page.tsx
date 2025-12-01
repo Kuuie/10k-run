@@ -44,7 +44,7 @@ export default async function AdminPage() {
           </span>
         </div>
         <form
-          action={inviteUserAction}
+          action={inviteUserAction as (formData: FormData) => Promise<void>}
           className="mt-4 grid gap-3 md:grid-cols-3"
         >
           <input
