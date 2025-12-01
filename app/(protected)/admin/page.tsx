@@ -14,6 +14,11 @@ export default async function AdminPage() {
 
   const challenge = await getActiveChallenge(supabase);
 
+  // Wrap server action to satisfy form action typing (drop returned payload).
+  const inviteAction = async (formData: FormData) => {
+    await inviteUserAction(formData);
+  };
+
   const [{ data: users }, { data: weeklyResults }] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
     supabase
@@ -44,7 +49,7 @@ export default async function AdminPage() {
           </span>
         </div>
         <form
-          action={inviteUserAction as (formData: FormData) => Promise<void>}
+          action={inviteAction}
           className="mt-4 grid gap-3 md:grid-cols-3"
         >
           <input
