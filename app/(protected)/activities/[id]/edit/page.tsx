@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { deleteActivityAction, updateActivityAction } from "@/app/actions";
 import { requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
+import type { ActivitiesRow } from "@/lib/supabase/types";
 
 export default async function EditActivityPage({
   params,
@@ -21,6 +22,7 @@ export default async function EditActivityPage({
     notFound();
   }
 
+  const activityData = activity as ActivitiesRow;
   const deleteAction = deleteActivityAction.bind(null, params.id);
   const updateAction = updateActivityAction.bind(null, params.id);
 
@@ -37,7 +39,7 @@ export default async function EditActivityPage({
             <select
               name="activity_type"
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
-              defaultValue={(activity as any)?.activity_type}
+              defaultValue={activityData?.activity_type ?? "run"}
             >
               <option value="run">Run</option>
               <option value="walk">Walk</option>
