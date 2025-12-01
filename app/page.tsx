@@ -3,8 +3,24 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SignInForm } from "@/components/sign-in-form";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const supabase = await createServerSupabaseClient();
+  const token =
+    (typeof searchParams?.code === "string" && searchParams?.code) ||
+    (typeof searchParams?.token === "string" && searchParams?.token) ||
+    (typeof searchParams?.token_hash === "string" && searchParams?.token_hash);
+
+  if (token) {
+    await supabase.auth.exchangeCodeForSession(token);
+    const next =
+      (typeof searchParams?.next === "string" && searchParams?.next) ||
+      "/dashboard";
+    redirect(next);
+  }
   const {
     data: { session },
   } = await supabase.auth.getSession();
