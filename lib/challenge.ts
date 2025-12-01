@@ -28,7 +28,7 @@ export const getActiveChallenge = async (
     name: "10K Weekly Movement Challenge",
     description: "Run / walk / jog 10 km every week.",
     start_date: start.toISOString().slice(0, 10),
-    week_start_day: 0,
+    week_start_day: 1, // Monday start
     weekly_distance_target_km: 10,
     created_by: null as string | null,
   };

@@ -32,6 +32,9 @@ export default async function ProtectedLayout({
               <Link href="/leaderboard" className="hover:text-slate-900">
                 Leaderboard
               </Link>
+              <Link href="/profile" className="hover:text-slate-900">
+                Profile
+              </Link>
               {isAdmin && (
                 <Link href="/admin" className="hover:text-slate-900">
                   Admin

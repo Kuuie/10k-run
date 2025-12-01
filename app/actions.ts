@@ -33,7 +33,7 @@ const getOrCreateChallenge = async (
     name: fallbackName,
     description: "Run / walk / jog 10 km every week.",
     start_date: start.toISOString().slice(0, 10),
-    week_start_day: 0,
+    week_start_day: 1, // Monday start
     weekly_distance_target_km: 10,
     created_by: userId,
   };
@@ -187,6 +187,19 @@ export const deleteActivityAction = async (activityId: string) => {
 
   revalidatePath("/dashboard");
   revalidatePath("/leaderboard");
+};
+
+export const updateProfileAction = async (formData: FormData) => {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) redirect("/");
+
+  const name = String(formData.get("name") ?? "").trim() || null;
+  await supabase.from("users").update({ name }).eq("id", session.user.id);
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
 };
 
 export const inviteUserAction = async (formData: FormData) => {
