@@ -4,6 +4,7 @@ import type {
   ActivitiesRow,
   ChallengesRow,
   Database,
+  TablesInsert,
   UserProfile,
   WeeklyResultsRow,
 } from "./supabase/types";
@@ -23,7 +24,7 @@ export const getActiveChallenge = async (
   if (data) return data;
 
   const start = new Date();
-  const payload: Partial<ChallengesRow> = {
+  const payload: TablesInsert<"challenges"> = {
     name: "10K Weekly Movement Challenge",
     description: "Run / walk / jog 10 km every week.",
     start_date: start.toISOString().slice(0, 10),

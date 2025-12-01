@@ -6,7 +6,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { getActiveChallenge } from "@/lib/challenge";
 import { recomputeWeeklyResult } from "@/lib/weekly";
-import type { ChallengesRow } from "@/lib/supabase/types";
+import type { ChallengesRow, TablesInsert } from "@/lib/supabase/types";
 
 export type SignInState = {
   message?: string;
@@ -29,7 +29,7 @@ const getOrCreateChallenge = async (
   if (data) return data;
 
   const start = new Date();
-  const payload: Partial<ChallengesRow> = {
+  const payload: TablesInsert<"challenges"> = {
     name: fallbackName,
     description: "Run / walk / jog 10 km every week.",
     start_date: start.toISOString().slice(0, 10),
