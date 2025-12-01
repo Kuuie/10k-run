@@ -51,7 +51,7 @@ export default async function EditActivityPage({
             <input
               name="activity_date"
               type="date"
-              defaultValue={activity.activity_date}
+              defaultValue={activityData?.activity_date ?? ""}
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
               required
             />
@@ -66,7 +66,7 @@ export default async function EditActivityPage({
               min="0.1"
               step="0.1"
               required
-              defaultValue={activity.distance_km}
+              defaultValue={activityData?.distance_km ?? 0}
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
             />
           </label>
@@ -77,7 +77,7 @@ export default async function EditActivityPage({
               type="number"
               min="0"
               step="1"
-              defaultValue={activity.duration_minutes ?? undefined}
+              defaultValue={activityData?.duration_minutes ?? undefined}
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
             />
           </label>
@@ -87,7 +87,7 @@ export default async function EditActivityPage({
           <input
             name="proof_url"
             type="url"
-            defaultValue={activity.proof_url ?? undefined}
+            defaultValue={activityData?.proof_url ?? undefined}
             className="rounded-xl border border-slate-200 px-3 py-2 text-base"
           />
         </label>
@@ -96,7 +96,7 @@ export default async function EditActivityPage({
           <input
             name="screenshot_url"
             type="url"
-            defaultValue={activity.screenshot_url ?? undefined}
+            defaultValue={activityData?.screenshot_url ?? undefined}
             className="rounded-xl border border-slate-200 px-3 py-2 text-base"
           />
           <p className="text-xs text-slate-500">
