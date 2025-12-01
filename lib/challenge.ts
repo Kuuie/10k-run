@@ -35,7 +35,7 @@ export const getActiveChallenge = async (
 
   const { data: created, error: createError } = await supabase
     .from("challenges")
-    .insert(payload)
+    .insert(payload as TablesInsert<"challenges">)
     .select("*")
     .single();
 
