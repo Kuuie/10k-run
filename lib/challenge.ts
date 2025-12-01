@@ -35,7 +35,8 @@ export const getActiveChallenge = async (
 
   const { data: created, error: createError } = await supabase
     .from("challenges")
-    .insert([payload])
+    // Using any here to avoid overly narrow inferred types from supabase-js.
+    .insert(payload as any)
     .select("*")
     .single();
 
@@ -102,10 +103,11 @@ export const getCurrentWeekLeaderboard = async (
   >();
 
   (data ?? []).forEach((row) => {
-    const total = totals.get(row.user_id)?.total ?? 0;
-    totals.set(row.user_id, {
-      total: total + Number(row.distance_km ?? 0),
-      user: (row as any).users ?? null,
+    const r = row as any;
+    const total = totals.get(r.user_id)?.total ?? 0;
+    totals.set(r.user_id, {
+      total: total + Number(r.distance_km ?? 0),
+      user: r.users ?? null,
     });
   });
 
@@ -142,18 +144,19 @@ export const getOverallStats = async (
   >();
 
   (data ?? []).forEach((row) => {
-    const current = totals.get(row.user_id) ?? {
+    const r = row as any;
+    const current = totals.get(r.user_id) ?? {
       totalKm: 0,
       streak: 0,
-      weeks: [],
-      user: (row as any).users ?? null,
+      weeks: [] as { week_start_date: string; met_target: boolean }[],
+      user: r.users ?? null,
     };
-    current.totalKm += Number(row.total_distance_km ?? 0);
+    current.totalKm += Number(r.total_distance_km ?? 0);
     current.weeks.push({
-      week_start_date: row.week_start_date,
-      met_target: row.met_target,
+      week_start_date: r.week_start_date,
+      met_target: r.met_target,
     });
-    totals.set(row.user_id, current);
+    totals.set(r.user_id, current);
   });
 
   return Array.from(totals.entries()).map(([userId, entry]) => ({

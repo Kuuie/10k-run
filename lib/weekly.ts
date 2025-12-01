@@ -39,20 +39,22 @@ export const recomputeWeeklyResult = async (
     .maybeSingle();
 
   const metTarget =
-    existing?.overridden_by_admin && existing.met_target !== null
-      ? existing.met_target
+    (existing as any)?.overridden_by_admin && (existing as any)?.met_target !== null
+      ? (existing as any)?.met_target
       : total >= Number(challenge.weekly_distance_target_km);
 
-  const { error: upsertError } = await supabase.from("weekly_results").upsert({
-    id: existing?.id,
-    user_id: userId,
-    challenge_id: challenge.id,
-    week_start_date: startIso,
-    week_end_date: endIso,
-    total_distance_km: total,
-    met_target: metTarget,
-    overridden_by_admin: existing?.overridden_by_admin ?? false,
-  });
+  const { error: upsertError } = await supabase
+    .from("weekly_results")
+    .upsert({
+      id: (existing as any)?.id,
+      user_id: userId,
+      challenge_id: challenge.id,
+      week_start_date: startIso,
+      week_end_date: endIso,
+      total_distance_km: total,
+      met_target: metTarget,
+      overridden_by_admin: (existing as any)?.overridden_by_admin ?? false,
+    } as any);
 
   if (upsertError) throw upsertError;
 };

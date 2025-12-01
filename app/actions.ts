@@ -40,7 +40,8 @@ const getOrCreateChallenge = async (
 
   const { data: created, error: createError } = await supabase
     .from("challenges")
-    .insert([payload])
+    // Using any here to avoid overly narrow inferred types from supabase-js.
+    .insert(payload as any)
     .select("*")
     .single();
 
