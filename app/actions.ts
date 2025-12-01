@@ -14,9 +14,15 @@ export type SignInState = {
 };
 
 const getSiteBase = () => {
-  const envUrl = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
-  const trimmed = envUrl.replace(/\/$/, "");
-  return trimmed || "http://localhost:3000";
+  const envUrl =
+    process.env.SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+    process.env.NEXT_PUBLIC_SITE_URL;
+  const trimmed = (envUrl || "").replace(/\/$/, "");
+  if (trimmed) return trimmed;
+  return process.env.NODE_ENV === "production"
+    ? "https://10k-run-git-main-andrew-khuus-projects.vercel.app"
+    : "http://localhost:3000";
 };
 
 const getOrCreateChallenge = async (
