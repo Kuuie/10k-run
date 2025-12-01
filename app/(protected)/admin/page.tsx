@@ -13,21 +13,30 @@ export default async function AdminPage() {
   if (profile?.role !== "admin") redirect("/dashboard");
 
   const challenge = await getActiveChallenge(supabase);
-
   // Wrap server action to satisfy form action typing (drop returned payload).
   const inviteAction = async (formData: FormData) => {
     await inviteUserAction(formData);
   };
 
-  const [{ data: users }, { data: weeklyResults }] = await Promise.all([
-    supabase.from("users").select("*").order("created_at", { ascending: false }),
-    supabase
-      .from("weekly_results")
-      .select("*, users(name,email)")
-      .eq("challenge_id", challenge.id)
-      .order("week_start_date", { ascending: false })
-      .limit(20),
-  ]);
+  let users: any[] = [];
+  let weeklyResults: any[] = [];
+  try {
+    const [u, w] = await Promise.all([
+      supabase.from("users").select("*").order("created_at", { ascending: false }),
+      supabase
+        .from("weekly_results")
+        .select("*, users(name,email)")
+        .eq("challenge_id", challenge.id)
+        .order("week_start_date", { ascending: false })
+        .limit(20),
+    ]);
+    if (u.error) throw u.error;
+    if (w.error) throw w.error;
+    users = u.data ?? [];
+    weeklyResults = w.data ?? [];
+  } catch (err) {
+    console.error("Admin data load failed", err);
+  }
 
   return (
     <div className="space-y-8">

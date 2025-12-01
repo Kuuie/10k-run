@@ -4,6 +4,12 @@ import { fetchProfile, requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
 import type { ActivitiesRow } from "@/lib/supabase/types";
 
+const todayLocalIso = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 10);
+};
+
 export default async function EditActivityPage({
   params,
 }: {
@@ -51,7 +57,8 @@ export default async function EditActivityPage({
             <input
               name="activity_date"
               type="date"
-              defaultValue={activityData?.activity_date ?? ""}
+              defaultValue={activityData?.activity_date ?? todayLocalIso()}
+              max={todayLocalIso()}
               className="rounded-xl border border-slate-200 px-3 py-2 text-base"
               required
             />

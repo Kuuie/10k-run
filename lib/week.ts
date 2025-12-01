@@ -6,6 +6,9 @@ export type WeekRange = {
 export const formatDateLocal = (date: Date) =>
   date.toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
 
+export const formatDateLocalTz = (date: Date, timeZone?: string) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone }).format(date);
+
 export const getWeekRange = (date: Date, weekStartDay: number): WeekRange => {
   const day = date.getDay();
   const distanceFromStart = (day - weekStartDay + 7) % 7;

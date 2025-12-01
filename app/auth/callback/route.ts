@@ -33,7 +33,11 @@ export async function GET(request: Request) {
   );
 
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
+    try {
+      await supabase.auth.exchangeCodeForSession(code);
+    } catch (err) {
+      console.error("exchangeCodeForSession failed", err);
+    }
   }
 
   return response;

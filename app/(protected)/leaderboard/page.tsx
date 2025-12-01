@@ -4,7 +4,12 @@ import {
   getCurrentWeekLeaderboard,
   getOverallStats,
 } from "@/lib/challenge";
-import { calculateStreak, formatDateLocal, getWeekRange } from "@/lib/week";
+import {
+  calculateStreak,
+  formatDateLocal,
+  formatDateLocalTz,
+  getWeekRange,
+} from "@/lib/week";
 
 export default async function LeaderboardPage() {
   const { supabase } = await requireSession();
@@ -32,7 +37,7 @@ export default async function LeaderboardPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">This week</h2>
           <span className="text-xs text-slate-500">
-            {formatDateLocal(currentWeek.start)} → {formatDateLocal(currentWeek.end)}
+            {formatDateLocalTz(currentWeek.start, Intl.DateTimeFormat().resolvedOptions().timeZone)} → {formatDateLocalTz(currentWeek.end, Intl.DateTimeFormat().resolvedOptions().timeZone)}
           </span>
         </div>
         <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">

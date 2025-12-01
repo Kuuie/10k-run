@@ -5,7 +5,12 @@ import {
   getUserActivities,
   getUserWeeklyResults,
 } from "@/lib/challenge";
-import { calculateStreak, formatDateLocal, getWeekRange } from "@/lib/week";
+import {
+  calculateStreak,
+  formatDateLocal,
+  formatDateLocalTz,
+  getWeekRange,
+} from "@/lib/week";
 
 const ProgressBar = ({ value, target }: { value: number; target: number }) => {
   const pct = Math.min(100, Math.round((value / target) * 100));
@@ -46,7 +51,8 @@ export default async function DashboardPage() {
     8
   );
 
-  const week = getWeekRange(new Date(), challenge.week_start_day);
+  const now = new Date();
+  const week = getWeekRange(now, challenge.week_start_day);
   const thisWeek = weeklyResults.find(
     (w) => w.week_start_date === formatDateLocal(week.start)
   );
@@ -62,11 +68,11 @@ export default async function DashboardPage() {
   );
 
   const toGo = Math.max(0, Number(challenge.weekly_distance_target_km) - totalKm);
-  const today = new Date();
+  const today = now;
   const dayPills = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(week.start);
     d.setDate(d.getDate() + i);
-    const iso = formatDateLocal(d);
+    const iso = formatDateLocalTz(d, Intl.DateTimeFormat().resolvedOptions().timeZone);
     return {
       iso,
       label: d.toLocaleDateString("en-US", {
