@@ -92,27 +92,28 @@ export default async function AdminPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {(users ?? []).map((u) => {
+                const userRow = u as any;
                 const toggleAction = toggleUserActiveAction.bind(
                   null,
-                  u.id,
-                  !u.active
+                  userRow.id,
+                  !userRow.active
                 );
                 return (
-                  <tr key={u.id}>
+                  <tr key={userRow.id}>
                     <td className="px-4 py-3 font-medium text-slate-900">
-                      {u.name || "—"}
+                      {userRow.name || "—"}
                     </td>
-                    <td className="px-4 py-3">{u.email}</td>
-                    <td className="px-4 py-3">{u.role}</td>
+                    <td className="px-4 py-3">{userRow.email}</td>
+                    <td className="px-4 py-3">{userRow.role}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
-                          u.active
+                          userRow.active
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-slate-100 text-slate-600"
                         }`}
                       >
-                        {u.active ? "Active" : "Inactive"}
+                        {userRow.active ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -121,7 +122,7 @@ export default async function AdminPage() {
                           type="submit"
                           className="text-xs font-semibold text-indigo-600"
                         >
-                          Set {u.active ? "inactive" : "active"}
+                          Set {userRow.active ? "inactive" : "active"}
                         </button>
                       </form>
                     </td>
