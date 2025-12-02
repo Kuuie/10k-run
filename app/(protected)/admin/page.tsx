@@ -14,10 +14,7 @@ export default async function AdminPage() {
   if (profile?.role !== "admin") redirect("/dashboard");
 
   const challenge = await getActiveChallenge(supabase);
-  // Wrap server action to satisfy form action typing (drop returned payload).
-  const inviteAction = async (formData: FormData) => {
-    await inviteUserAction(formData);
-  };
+  const inviteAction = inviteUserAction;
 
   let users: any[] = [];
   let weeklyResults: any[] = [];
@@ -109,11 +106,10 @@ export default async function AdminPage() {
             <tbody className="divide-y divide-slate-100 bg-white">
               {(users ?? []).map((u) => {
                 const userRow = u as any;
-                const toggleAction = toggleUserActiveAction.bind(
-                  null,
-                  userRow.id,
-                  !userRow.active
-                );
+                const toggleAction = async () => {
+                  "use server";
+                  await toggleUserActiveAction(userRow.id, !userRow.active);
+                };
                 return (
                   <tr key={userRow.id}>
                     <td className="px-4 py-3 font-medium text-slate-900">
@@ -181,16 +177,14 @@ export default async function AdminPage() {
             <tbody className="divide-y divide-slate-100 bg-white">
               {(weeklyResults ?? []).map((wr) => {
                 const wrRow = wr as any;
-                const setTrue = overrideWeeklyResultAction.bind(
-                  null,
-                  wrRow.id,
-                  true
-                );
-                const setFalse = overrideWeeklyResultAction.bind(
-                  null,
-                  wrRow.id,
-                  false
-                );
+                const setTrue = async () => {
+                  "use server";
+                  await overrideWeeklyResultAction(wrRow.id, true);
+                };
+                const setFalse = async () => {
+                  "use server";
+                  await overrideWeeklyResultAction(wrRow.id, false);
+                };
                 const user = wrRow.users;
                 return (
                   <tr key={wrRow.id}>

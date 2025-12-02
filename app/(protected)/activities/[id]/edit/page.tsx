@@ -4,23 +4,28 @@ import { fetchProfile, requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
 import { todayLocalIso } from "@/lib/week";
 import type { ActivitiesRow } from "@/lib/supabase/types";
+import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export default async function EditActivityPage({
   params,
 }: {
   params: { id: string };
 }) {
+  if (!params.id || !/^[0-9a-fA-F-]{36}$/.test(params.id)) {
+    notFound();
+  }
   const { supabase, userId } = await requireSession();
   const profile = await fetchProfile(supabase, userId);
   const challenge = await getActiveChallenge(supabase);
+  const adminClient = createAdminSupabaseClient();
   let activity: ActivitiesRow | null = null;
   try {
-    const { data, error } = await supabase
-      .from("activities")
-      .select("*")
-      .eq("id", params.id)
-      .eq("user_id", userId)
-      .maybeSingle();
+    const client = profile?.role === "admin" ? adminClient : supabase;
+    const query = client.from("activities").select("*").eq("id", params.id);
+    if (profile?.role !== "admin") {
+      query.eq("user_id", userId);
+    }
+    const { data, error } = await query.maybeSingle();
     if (error) throw error;
     if (data) activity = data as ActivitiesRow;
   } catch (err) {

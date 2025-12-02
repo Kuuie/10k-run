@@ -144,6 +144,7 @@ export const updateActivityAction = async (
   } = await supabase.auth.getSession();
   if (!session?.user) redirect("/");
   const profile = await fetchProfile(supabase, session.user.id);
+  const adminClient = createAdminSupabaseClient();
 
   const challenge = await getActiveChallenge(supabase);
   const payload = {
@@ -157,11 +158,15 @@ export const updateActivityAction = async (
     screenshot_url: (formData.get("screenshot_url") as string) || null,
   };
 
-  await supabase
-    .from("activities")
-    .update(payload)
-    .eq("id", activityId)
-    .eq("user_id", session.user.id);
+  if (profile?.role === "admin") {
+    await adminClient.from("activities").update(payload).eq("id", activityId);
+  } else {
+    await supabase
+      .from("activities")
+      .update(payload)
+      .eq("id", activityId)
+      .eq("user_id", session.user.id);
+  }
 
   await recomputeWeeklyResult(supabase, {
     userId: session.user.id,
@@ -189,11 +194,15 @@ export const deleteActivityAction = async (activityId: string) => {
     .eq("id", activityId)
     .maybeSingle();
 
-  await supabase
-    .from("activities")
-    .delete()
-    .eq("id", activityId)
-    .eq("user_id", session.user.id);
+  if (profile?.role === "admin") {
+    await adminClient.from("activities").delete().eq("id", activityId);
+  } else {
+    await supabase
+      .from("activities")
+      .delete()
+      .eq("id", activityId)
+      .eq("user_id", session.user.id);
+  }
 
   if (activity?.activity_date) {
     await recomputeWeeklyResult(supabase, {
