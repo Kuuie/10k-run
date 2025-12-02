@@ -2,6 +2,7 @@ import { addActivityAction } from "@/app/actions";
 import { requireSession } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
 import { todayLocalIso } from "@/lib/week";
+import { PendingButton } from "@/components/pending-button";
 
 export default async function NewActivityPage() {
   const { supabase } = await requireSession();
@@ -89,12 +90,7 @@ export default async function NewActivityPage() {
           <p className="text-xs text-slate-500">
             Week start: {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][challenge.week_start_day]} • Target: {challenge.weekly_distance_target_km} km
           </p>
-          <button
-            type="submit"
-            className="rounded-xl bg-indigo-600 px-5 py-2.5 text-white transition hover:bg-indigo-500"
-          >
-            Save activity
-          </button>
+          <PendingButton label="Save activity" />
         </div>
       </form>
     </div>

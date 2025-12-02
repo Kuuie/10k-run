@@ -5,6 +5,7 @@ import { getActiveChallenge } from "@/lib/challenge";
 import { todayLocalIso } from "@/lib/week";
 import type { ActivitiesRow } from "@/lib/supabase/types";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { PendingButton } from "@/components/pending-button";
 
 export default async function EditActivityPage({
   params,
@@ -137,12 +138,7 @@ export default async function EditActivityPage({
             >
               Delete
             </button>
-            <button
-              type="submit"
-              className="rounded-xl bg-indigo-600 px-5 py-2 text-white transition hover:bg-indigo-500"
-            >
-              Save changes
-            </button>
+            <PendingButton label="Save changes" />
           </div>
         </div>
       </form>

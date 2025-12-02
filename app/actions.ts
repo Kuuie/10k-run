@@ -210,8 +210,7 @@ export const deleteActivityAction = async (activityId: string) => {
     .maybeSingle();
 
   if (profile?.role === "admin") {
-    const adminActivities = adminClient.from("activities" as any);
-    await (adminActivities as any).delete().eq("id", activityId);
+    await adminClient.from("activities").delete().eq("id", activityId);
   } else {
     await supabase
       .from("activities")

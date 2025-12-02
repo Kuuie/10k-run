@@ -12,6 +12,7 @@ import {
   formatDateLocalTz,
   getWeekRange,
 } from "@/lib/week";
+import { deleteActivityAction } from "@/app/actions";
 
 const ProgressBar = ({ value, target }: { value: number; target: number }) => {
   const pct = Math.min(100, Math.round((value / target) * 100));
@@ -215,31 +216,52 @@ export default async function DashboardPage() {
             </Link>
           </div>
           <div className="mt-4 space-y-3">
-            {activities.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2"
-              >
-                <div>
-                  <p className="text-sm font-semibold">
-                    {activity.activity_type.toUpperCase()} •{" "}
-                    {Number(activity.distance_km).toFixed(1)} km
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {activity.activity_date}
-                    {activity.duration_minutes
-                      ? ` • ${activity.duration_minutes} min`
-                      : ""}
-                  </p>
-                </div>
-                <Link
-                  href={`/activities/${activity.id}/edit`}
-                  className="text-xs text-indigo-600"
+            {activities.map((activity) => {
+              const deleteAction = async () => {
+                "use server";
+                await deleteActivityAction(activity.id);
+              };
+              return (
+                <div
+                  key={activity.id}
+                  className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2"
                 >
-                  Edit
-                </Link>
-              </div>
-            ))}
+                  <div>
+                    <p className="text-sm font-semibold">
+                      {activity.activity_type.toUpperCase()} •{" "}
+                      {Number(activity.distance_km).toFixed(1)} km
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {activity.activity_date}
+                      {activity.duration_minutes
+                        ? ` • ${activity.duration_minutes} min`
+                        : ""}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <Link
+                      href={`/activities/${activity.id}/edit`}
+                      className="text-indigo-600"
+                    >
+                      Edit
+                    </Link>
+                    <form action={deleteAction}>
+                      <button
+                        type="submit"
+                        className="text-red-500"
+                        onClick={(e) => {
+                          if (!confirm("Delete this activity?")) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              );
+            })}
             {activities.length === 0 && (
               <p className="text-sm text-slate-600">
                 No activities yet. Start with a walk, jog, or run.

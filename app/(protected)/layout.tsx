@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirectIfInactive } from "@/lib/challenge";
 import { fetchProfile, requireSession } from "@/lib/auth";
 import { signOutAction } from "@/app/actions";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { MicrotransactionButton } from "@/components/microtransaction-button";
 
 export default async function ProtectedLayout({
   children,
@@ -46,6 +48,7 @@ export default async function ProtectedLayout({
             <span className="hidden text-slate-600 sm:inline">
               {profile?.name || profile?.email || "You"}
             </span>
+            <ThemeToggle />
             <form action={signOutAction}>
               <button
                 type="submit"
@@ -58,6 +61,7 @@ export default async function ProtectedLayout({
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <MicrotransactionButton />
     </div>
   );
 }
