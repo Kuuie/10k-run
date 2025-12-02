@@ -56,16 +56,16 @@ export default async function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2 dark:border-[#1F2025] dark:bg-[#16181D]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:bg-darkTheme-elevated">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">This week</h2>
           <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
             {formatDateLocalTz(currentWeek.start, DEFAULT_TZ)} → {formatDateLocalTz(currentWeek.end, DEFAULT_TZ)}
           </span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-[#1F2025]">
-          <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-[#1F2025]">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-elevated dark:text-darkTheme-text-secondary">
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-darkTheme-border">
+          <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-darkTheme-border">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-card dark:text-darkTheme-text-secondary">
               <tr>
                 <th className="px-4 py-3">Rank</th>
                 <th className="px-4 py-3">User</th>
@@ -73,12 +73,12 @@ export default async function LeaderboardPage() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-card">
+            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-elevated">
               {weekly.map((row, idx) => {
                 const meta = rankMeta[idx];
                 const rankBadge = meta ? (
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-elevated dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-card dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
                   >
                     {meta.label}
                   </span>
@@ -91,7 +91,7 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-card dark:even:bg-darkTheme-elevated`}
+                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">
@@ -142,16 +142,16 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-[#1F2025] dark:bg-[#16181D]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border dark:bg-darkTheme-elevated">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Overall</h2>
           <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
             From {challenge.start_date}
           </span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-[#1F2025]">
-          <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-[#1F2025]">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-elevated dark:text-darkTheme-text-secondary">
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-darkTheme-border">
+          <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-darkTheme-border">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-card dark:text-darkTheme-text-secondary">
               <tr>
                 <th className="px-4 py-3">Rank</th>
                 <th className="px-4 py-3">User</th>
@@ -159,12 +159,12 @@ export default async function LeaderboardPage() {
                 <th className="px-4 py-3">Current streak</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-card">
+            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-elevated">
               {overall.map((row, idx) => {
                 const meta = rankMeta[idx];
                 const rankBadge = meta ? (
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-elevated dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-card dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
                   >
                     {meta.label}
                   </span>
@@ -182,7 +182,7 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-card dark:even:bg-darkTheme-elevated`}
+                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">

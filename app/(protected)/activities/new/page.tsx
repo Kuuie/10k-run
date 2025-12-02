@@ -16,7 +16,7 @@ export default async function NewActivityPage() {
         Log run / walk / jog distance toward your weekly {challenge.weekly_distance_target_km} km goal.
       </p>
 
-      <form action={addActivityAction} className="mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
+      <form action={addActivityAction} className="mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-elevated dark:text-darkTheme-text-primary">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">
             Activity type
