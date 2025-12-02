@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-darkTheme-background dark:text-darkTheme-text-primary">
-      <header className="border-b border-slate-200 bg-white dark:border-darkTheme-border dark:bg-darkTheme-card">
+      <header className="border-b border-slate-200 bg-white dark:border-darkTheme-border dark:bg-darkTheme-elevated">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="text-lg font-semibold hover:text-indigo-600">

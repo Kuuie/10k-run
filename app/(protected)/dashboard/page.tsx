@@ -18,9 +18,9 @@ import { CheckIcon, XIcon } from "@/components/icons";
 const ProgressBar = ({ value, target }: { value: number; target: number }) => {
   const pct = Math.min(100, Math.round((value / target) * 100));
   return (
-    <div className="w-full rounded-full bg-slate-100 dark:bg-[#1F2025]">
+    <div className="w-full rounded-full bg-slate-100 dark:bg-darkTheme-border">
       <div
-        className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 transition-[width]"
+        className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 transition-[width] dark:bg-darkTheme-accent-progress dark:from-darkTheme-accent-progress dark:to-darkTheme-accent-progress"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-[#0E0F12] dark:text-indigo-200">
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-darkTheme-elevated dark:text-darkTheme-text-primary">
               This week
             </span>
             <span className="font-semibold">
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
                 className={`rounded-full px-3 py-1 text-xs font-semibold ${
                   day.isToday
                     ? "bg-indigo-600 text-white dark:bg-darkTheme-accent-primary"
-                    : "bg-white text-indigo-700 dark:bg-darkTheme-background dark:text-darkTheme-text-secondary"
+                    : "bg-white text-indigo-700 dark:bg-darkTheme-elevated dark:text-darkTheme-text-secondary"
                 }`}
               >
                 {day.label}
