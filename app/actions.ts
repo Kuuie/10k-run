@@ -6,7 +6,13 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { getActiveChallenge } from "@/lib/challenge";
 import { recomputeWeeklyResult } from "@/lib/weekly";
-import type { ChallengesRow, TablesInsert } from "@/lib/supabase/types";
+import type {
+  ActivitiesRow,
+  ChallengesRow,
+  TablesInsert,
+  TablesUpdate,
+} from "@/lib/supabase/types";
+import type { Database } from "@/lib/supabase/types";
 import { fetchProfile } from "@/lib/auth";
 
 export type SignInState = {
@@ -117,7 +123,9 @@ export const addActivityAction = async (formData: FormData) => {
     duration_minutes: formData.get("duration_minutes")
       ? Number(formData.get("duration_minutes"))
       : null,
-    activity_type: (formData.get("activity_type") as string) ?? "run",
+    activity_type:
+      ((formData.get("activity_type") as ActivitiesRow["activity_type"]) ??
+        "run") as ActivitiesRow["activity_type"],
     proof_url: (formData.get("proof_url") as string) || null,
     screenshot_url: (formData.get("screenshot_url") as string) || null,
   };
@@ -126,7 +134,7 @@ export const addActivityAction = async (formData: FormData) => {
   await recomputeWeeklyResult(supabase, {
     userId: session.user.id,
     challenge,
-    activityDate: payload.activity_date,
+    activityDate: payload.activity_date || String(formData.get("activity_date") ?? "").slice(0, 10),
   });
 
   revalidatePath("/dashboard");
@@ -147,19 +155,24 @@ export const updateActivityAction = async (
   const adminClient = createAdminSupabaseClient();
 
   const challenge = await getActiveChallenge(supabase);
-  const payload = {
+  const payload: TablesUpdate<"activities"> = {
     activity_date: String(formData.get("activity_date") ?? "").slice(0, 10),
     distance_km: Number(formData.get("distance_km") ?? 0),
     duration_minutes: formData.get("duration_minutes")
       ? Number(formData.get("duration_minutes"))
       : null,
-    activity_type: (formData.get("activity_type") as string) ?? "run",
+    activity_type:
+      ((formData.get("activity_type") as ActivitiesRow["activity_type"]) ??
+        "run") as ActivitiesRow["activity_type"],
     proof_url: (formData.get("proof_url") as string) || null,
     screenshot_url: (formData.get("screenshot_url") as string) || null,
   };
 
   if (profile?.role === "admin") {
-    await adminClient.from("activities").update(payload).eq("id", activityId);
+    const adminActivities = adminClient.from("activities" as any);
+    await (adminActivities as any)
+      .update(payload as any)
+      .eq("id", activityId);
   } else {
     await supabase
       .from("activities")
@@ -171,7 +184,8 @@ export const updateActivityAction = async (
   await recomputeWeeklyResult(supabase, {
     userId: session.user.id,
     challenge,
-    activityDate: payload.activity_date,
+    activityDate:
+      payload.activity_date || String(formData.get("activity_date") ?? "").slice(0, 10),
   });
 
   revalidatePath("/dashboard");
@@ -186,6 +200,7 @@ export const deleteActivityAction = async (activityId: string) => {
   } = await supabase.auth.getSession();
   if (!session?.user) redirect("/");
   const profile = await fetchProfile(supabase, session.user.id);
+  const adminClient = createAdminSupabaseClient();
   const challenge = await getActiveChallenge(supabase);
 
   const { data: activity } = await supabase
@@ -195,7 +210,8 @@ export const deleteActivityAction = async (activityId: string) => {
     .maybeSingle();
 
   if (profile?.role === "admin") {
-    await adminClient.from("activities").delete().eq("id", activityId);
+    const adminActivities = adminClient.from("activities" as any);
+    await (adminActivities as any).delete().eq("id", activityId);
   } else {
     await supabase
       .from("activities")

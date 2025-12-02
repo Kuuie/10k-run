@@ -14,7 +14,11 @@ export default async function AdminPage() {
   if (profile?.role !== "admin") redirect("/dashboard");
 
   const challenge = await getActiveChallenge(supabase);
-  const inviteAction = inviteUserAction;
+  // Wrap invite action to satisfy form typing (ignore returned payload).
+  const inviteAction = async (formData: FormData) => {
+    "use server";
+    await inviteUserAction(formData);
+  };
 
   let users: any[] = [];
   let weeklyResults: any[] = [];
