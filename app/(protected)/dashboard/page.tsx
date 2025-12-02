@@ -136,10 +136,10 @@ export default async function DashboardPage() {
               </p>
             </div>
             <span
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold border ${
                 metTarget
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-success dark:border dark:border-darkTheme-border"
-                  : "bg-amber-100 text-amber-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning dark:border dark:border-darkTheme-border"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-success dark:border-darkTheme-border"
+                  : "bg-amber-100 text-amber-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning dark:border-darkTheme-border"
               }`}
             >
               {metTarget ? (
