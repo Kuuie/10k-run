@@ -59,13 +59,13 @@ export default async function LeaderboardPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2 dark:border-[#1F2025] dark:bg-[#16181D]">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">This week</h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
             {formatDateLocalTz(currentWeek.start, DEFAULT_TZ)} → {formatDateLocalTz(currentWeek.end, DEFAULT_TZ)}
           </span>
         </div>
         <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-[#1F2025]">
           <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-[#1F2025]">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-[#13151A] dark:text-[#9CA3AF]">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-elevated dark:text-darkTheme-text-secondary">
               <tr>
                 <th className="px-4 py-3">Rank</th>
                 <th className="px-4 py-3">User</th>
@@ -73,12 +73,12 @@ export default async function LeaderboardPage() {
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white dark:divide-[#1F2025] dark:bg-[#16181D]">
+            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-card">
               {weekly.map((row, idx) => {
                 const meta = rankMeta[idx];
                 const rankBadge = meta ? (
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-[#1F2025] dark:border-[#2a2c32] dark:text-[#E5E7EB]`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-elevated dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
                   >
                     {meta.label}
                   </span>
@@ -91,15 +91,15 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-[#16181D] dark:even:bg-[#13151A]`}
+                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-card dark:even:bg-darkTheme-elevated`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-[#E5E7EB]">
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">
                       <div className="flex items-center gap-2">
                         <span className={idx === 0 ? "font-semibold" : ""}>
                           {row.name}
                         </span>
-                        <span className="text-xs text-slate-500 dark:text-[#9CA3AF]">
+                        <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
                           {row.email}
                         </span>
                       </div>
@@ -107,10 +107,10 @@ export default async function LeaderboardPage() {
                     <td className="px-4 py-3">{row.total.toFixed(1)} km</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold border ${
                           row.status === "✅"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-900/50"
-                            : "bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-900/30 dark:text-rose-200 dark:border-rose-900/50"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-darkTheme-card dark:text-darkTheme-accent-success dark:border-darkTheme-border"
+                            : "bg-rose-50 text-rose-700 border-rose-100 dark:bg-darkTheme-card dark:text-darkTheme-accent-error dark:border-darkTheme-border"
                         }`}
                       >
                         {row.status === "✅" ? (
@@ -131,7 +131,7 @@ export default async function LeaderboardPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-4 text-center text-slate-600 dark:text-[#9CA3AF]"
+                    className="px-4 py-4 text-center text-slate-600 dark:text-darkTheme-text-secondary"
                   >
                     No activities logged this week yet.
                   </td>
@@ -145,13 +145,13 @@ export default async function LeaderboardPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-[#1F2025] dark:bg-[#16181D]">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Overall</h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
             From {challenge.start_date}
           </span>
         </div>
         <div className="mt-4 overflow-hidden rounded-xl border border-slate-100 dark:border-[#1F2025]">
           <table className="min-w-full divide-y divide-slate-100 text-sm dark:divide-[#1F2025]">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-[#13151A] dark:text-[#9CA3AF]">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-darkTheme-elevated dark:text-darkTheme-text-secondary">
               <tr>
                 <th className="px-4 py-3">Rank</th>
                 <th className="px-4 py-3">User</th>
@@ -159,12 +159,12 @@ export default async function LeaderboardPage() {
                 <th className="px-4 py-3">Current streak</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white dark:divide-[#1F2025] dark:bg-[#16181D]">
+            <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-card">
               {overall.map((row, idx) => {
                 const meta = rankMeta[idx];
                 const rankBadge = meta ? (
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-[#1F2025] dark:border-[#2a2c32] dark:text-[#E5E7EB]`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border} dark:bg-darkTheme-elevated dark:border-darkTheme-border dark:text-darkTheme-text-primary`}
                   >
                     {meta.label}
                   </span>
@@ -182,15 +182,15 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-[#16181D] dark:even:bg-[#13151A]`}
+                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-card dark:even:bg-darkTheme-elevated`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-[#E5E7EB]">
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">
                       <div className="flex items-center gap-2">
                         <span className={idx === 0 ? "font-semibold" : ""}>
                           {row.name}
                         </span>
-                        <span className="text-xs text-slate-500 dark:text-[#9CA3AF]">
+                        <span className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
                           {row.email}
                         </span>
                       </div>
@@ -206,7 +206,7 @@ export default async function LeaderboardPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-4 text-center text-slate-600 dark:text-[#9CA3AF]"
+                    className="px-4 py-4 text-center text-slate-600 dark:text-darkTheme-text-secondary"
                   >
                     Stats will appear once results are logged.
                   </td>

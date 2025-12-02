@@ -90,16 +90,16 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 animate-slide-up">
+        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 dark:text-darkTheme-accent-primary animate-slide-up">
           Hello, {displayName}
         </p>
         <h1 className="text-3xl font-semibold animate-slide-up delay-1">Dashboard</h1>
-        <p className="text-slate-600 dark:text-[#9CA3AF] animate-slide-up delay-2">
+        <p className="text-slate-600 dark:text-darkTheme-text-secondary animate-slide-up delay-2">
           Track your weekly 10 km progress, streaks, and recent activities.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2 dark:border-[#1F2025] dark:bg-[#16181D] dark:text-[#E5E7EB]">
+      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-[#0E0F12] dark:text-indigo-200">
@@ -115,8 +115,8 @@ export default async function DashboardPage() {
                 key={day.iso}
                 className={`rounded-full px-3 py-1 text-xs font-semibold ${
                   day.isToday
-                    ? "bg-indigo-600 text-white dark:bg-indigo-500"
-                    : "bg-white text-indigo-700 dark:bg-[#0E0F12] dark:text-indigo-200"
+                    ? "bg-indigo-600 text-white dark:bg-darkTheme-accent-primary"
+                    : "bg-white text-indigo-700 dark:bg-darkTheme-background dark:text-darkTheme-text-secondary"
                 }`}
               >
                 {day.label}
@@ -127,10 +127,10 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 animate-slide-up delay-3">
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-[#1F2025] dark:bg-[#16181D]">
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border dark:bg-darkTheme-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-700 dark:text-[#E5E7EB]">This Week</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">This Week</p>
               <p className="text-2xl font-semibold">
                 {totalKm.toFixed(1)} km / {challenge.weekly_distance_target_km} km
               </p>
@@ -138,8 +138,8 @@ export default async function DashboardPage() {
             <span
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
                 metTarget
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
-                  : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-success dark:border dark:border-darkTheme-border"
+                  : "bg-amber-100 text-amber-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning dark:border dark:border-darkTheme-border"
               }`}
             >
               {metTarget ? (
@@ -159,38 +159,38 @@ export default async function DashboardPage() {
               target={Number(challenge.weekly_distance_target_km)}
             />
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-[#9CA3AF]">
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
             <span>
               Week window: {week.start.toISOString().slice(0, 10)} →{" "}
               {week.end.toISOString().slice(0, 10)}
             </span>
             <Link
               href="/activities/new"
-              className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+              className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-500 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
             >
               Add activity
             </Link>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-[#1F2025] dark:bg-[#16181D]">
-          <p className="text-sm font-medium text-slate-700 dark:text-[#E5E7EB]">Current streak</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border dark:bg-darkTheme-card">
+          <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">Current streak</p>
           <p className="mt-2 text-3xl font-semibold">{streak} week(s)</p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-[#9CA3AF]">
+          <p className="mt-1 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
             Consecutive weeks hitting {challenge.weekly_distance_target_km} km
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#1F2025] dark:bg-[#16181D]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-card">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Recent weeks</h2>
-            <span className="flex items-center gap-2 text-xs text-slate-500 dark:text-[#9CA3AF]">
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/30 dark:text-emerald-200">
+            <span className="flex items-center gap-2 text-xs text-slate-500 dark:text-darkTheme-text-secondary">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-success">
                 <CheckIcon className="h-3.5 w-3.5" /> Met
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-700 dark:border-rose-900/50 dark:bg-rose-900/30 dark:text-rose-200">
+              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-error">
                 <XIcon className="h-3.5 w-3.5" /> Missed
               </span>
             </span>
@@ -199,21 +199,21 @@ export default async function DashboardPage() {
             {weeklyResults.slice(0, 8).map((weekResult) => (
               <div
                 key={weekResult.week_start_date}
-                className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-[#1F2025] dark:bg-[#13151A]"
+                className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-darkTheme-border dark:bg-darkTheme-elevated"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-800 dark:text-[#E5E7EB]">
+                  <p className="text-sm font-medium text-slate-800 dark:text-darkTheme-text-primary">
                     Week of {weekResult.week_start_date}
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">
+                  <p className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
                     Total: {Number(weekResult.total_distance_km).toFixed(1)} km
                   </p>
                 </div>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold ${
                     weekResult.met_target
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/30 dark:text-emerald-200"
-                      : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-900/30 dark:text-rose-200"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-success"
+                      : "border-rose-200 bg-rose-50 text-rose-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-error"
                   }`}
                 >
                   {weekResult.met_target ? (
@@ -229,17 +229,17 @@ export default async function DashboardPage() {
               </div>
             ))}
             {weeklyResults.length === 0 && (
-              <p className="text-sm text-slate-600 dark:text-[#9CA3AF]">
+              <p className="text-sm text-slate-600 dark:text-darkTheme-text-secondary">
                 Log your first activity to start your streak.
               </p>
             )}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#1F2025] dark:bg-[#16181D]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-card">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Recent activities</h2>
-            <Link href="/activities/new" className="text-sm text-indigo-600 dark:text-indigo-300">
+            <Link href="/activities/new" className="text-sm text-indigo-600 dark:text-darkTheme-accent-primary">
               Add
             </Link>
           </div>
@@ -252,14 +252,14 @@ export default async function DashboardPage() {
               return (
                 <div
                   key={activity.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-[#1F2025] dark:bg-[#13151A]"
+                  className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-darkTheme-border dark:bg-darkTheme-elevated"
                 >
                   <div>
-                    <p className="text-sm font-semibold">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-darkTheme-text-primary">
                       {activity.activity_type.toUpperCase()} •{" "}
                       {Number(activity.distance_km).toFixed(1)} km
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">
+                    <p className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
                       {activity.activity_date}
                       {activity.duration_minutes
                         ? ` • ${activity.duration_minutes} min`
@@ -269,14 +269,14 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-2 text-xs">
                     <Link
                       href={`/activities/${activity.id}/edit`}
-                      className="text-indigo-600 dark:text-indigo-300"
+                      className="text-indigo-600 dark:text-darkTheme-accent-primary"
                     >
                       Edit
                     </Link>
                     <form action={deleteAction}>
                       <button
                         type="submit"
-                        className="text-red-500 dark:text-red-300"
+                        className="text-red-500 dark:text-darkTheme-accent-error"
                       >
                         Delete
                       </button>
