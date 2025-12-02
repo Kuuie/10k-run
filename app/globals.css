@@ -3,11 +3,19 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --secondary: #9ca3af;
+  --border: #e5e7eb;
 }
 
 .dark {
-  --background: #0b1220;
+  --background: #0e0f12;
   --foreground: #e5e7eb;
+  --card: #16181d;
+  --muted: #6b7280;
+  --secondary: #9ca3af;
+  --border: #1f2025;
 }
 
 @theme inline {
@@ -17,33 +25,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-
-/* Dark mode helpers to override common Tailwind surfaces */
-:root.dark body {
-  background: #0b1220;
-  color: #e5e7eb;
-}
-:root.dark .bg-white { background-color: #0f172a !important; }
-:root.dark .bg-slate-50 { background-color: #0d1324 !important; }
-:root.dark .bg-indigo-50 { background-color: #111827 !important; }
-:root.dark .text-slate-900 { color: #e5e7eb !important; }
-:root.dark .text-slate-700 { color: #cbd5e1 !important; }
-:root.dark .text-slate-600 { color: #cbd5e1 !important; }
-:root.dark .border-slate-200 { border-color: #1f2937 !important; }
-:root.dark .border-slate-100 { border-color: #1f2937 !important; }
-:root.dark .shadow-sm { box-shadow: 0 10px 30px rgba(0,0,0,0.35) !important; }
 
 /* Simple entrance animations */
 @keyframes fade-in {
