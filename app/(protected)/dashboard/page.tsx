@@ -127,7 +127,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 animate-slide-up delay-3">
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border dark:bg-darkTheme-elevated">
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border dark:bg-[rgba(34,197,94,0.12)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">This Week</p>
@@ -173,7 +173,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border dark:bg-darkTheme-elevated">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border dark:bg-[rgba(34,197,94,0.12)]">
           <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">Current streak</p>
           <p className="mt-2 text-3xl font-semibold">{streak} week(s)</p>
           <p className="mt-1 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
