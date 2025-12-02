@@ -3,11 +3,20 @@ export type WeekRange = {
   end: Date;
 };
 
-export const DEFAULT_TZ =
-  process.env.NEXT_PUBLIC_TIME_ZONE ||
-  process.env.TIME_ZONE ||
-  process.env.TZ ||
-  "Australia/Melbourne";
+export const DEFAULT_TZ = (() => {
+  const tz =
+    process.env.NEXT_PUBLIC_TIME_ZONE ||
+    process.env.TIME_ZONE ||
+    process.env.TZ ||
+    "Australia/Melbourne";
+  // Guard against invalid values like empty string or ":UTC".
+  try {
+    new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(new Date());
+    return tz;
+  } catch {
+    return "Australia/Melbourne";
+  }
+})();
 
 const getDatePartsInTz = (date: Date, timeZone = DEFAULT_TZ) => {
   const parts = new Intl.DateTimeFormat("en-CA", {
