@@ -13,6 +13,7 @@ import {
   getWeekRange,
 } from "@/lib/week";
 import { deleteActivityAction } from "@/app/actions";
+import { CheckIcon, XIcon } from "@/components/icons";
 
 const ProgressBar = ({ value, target }: { value: number; target: number }) => {
   const pct = Math.min(100, Math.round((value / target) * 100));
@@ -135,13 +136,21 @@ export default async function DashboardPage() {
               </p>
             </div>
             <span
-              className={`rounded-full px-3 py-1 text-sm font-semibold ${
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
                 metTarget
                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
                   : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200"
               }`}
             >
-              {metTarget ? "Goal reached ✅" : `${toGo.toFixed(1)} km to go`}
+              {metTarget ? (
+                <>
+                  <CheckIcon className="h-4 w-4" /> Goal reached
+                </>
+              ) : (
+                <>
+                  <XIcon className="h-4 w-4" /> {toGo.toFixed(1)} km to go
+                </>
+              )}
             </span>
           </div>
           <div className="mt-4">
@@ -177,8 +186,13 @@ export default async function DashboardPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#1F2025] dark:bg-[#16181D]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Recent weeks</h2>
-            <span className="text-xs text-slate-500 dark:text-[#9CA3AF]">
-              ✅ met / ❌ missed
+            <span className="flex items-center gap-2 text-xs text-slate-500 dark:text-[#9CA3AF]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/30 dark:text-emerald-200">
+                <CheckIcon className="h-3.5 w-3.5" /> Met
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-700 dark:border-rose-900/50 dark:bg-rose-900/30 dark:text-rose-200">
+                <XIcon className="h-3.5 w-3.5" /> Missed
+              </span>
             </span>
           </div>
           <div className="mt-4 space-y-3">
@@ -195,8 +209,22 @@ export default async function DashboardPage() {
                     Total: {Number(weekResult.total_distance_km).toFixed(1)} km
                   </p>
                 </div>
-                <span className="text-lg">
-                  {weekResult.met_target ? "✅" : "❌"}
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold ${
+                    weekResult.met_target
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/30 dark:text-emerald-200"
+                      : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-900/30 dark:text-rose-200"
+                  }`}
+                >
+                  {weekResult.met_target ? (
+                    <>
+                      <CheckIcon className="h-3.5 w-3.5" /> Met
+                    </>
+                  ) : (
+                    <>
+                      <XIcon className="h-3.5 w-3.5" /> Missed
+                    </>
+                  )}
                 </span>
               </div>
             ))}

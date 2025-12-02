@@ -40,3 +40,32 @@ export const SparkleIcon = ({ className }: { className?: string }) => (
     <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3zM5 19l.8 2 .8-2 2-.8-2-.8-.8-2-.8 2-2 .8 2 .8zM17 17l.6 1.5.6-1.5 1.5-.6-1.5-.6-.6-1.5-.6 1.5-1.5.6 1.5.6z" />
   </svg>
 );
+
+export const CheckIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);
+
+export const XIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </svg>
+);

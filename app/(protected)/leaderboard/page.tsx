@@ -11,6 +11,7 @@ import {
   formatDateLocalTz,
   getWeekRange,
 } from "@/lib/week";
+import { CheckIcon, XIcon } from "@/components/icons";
 
 const rankMeta = [
   {
@@ -106,13 +107,21 @@ export default async function LeaderboardPage() {
                     <td className="px-4 py-3">{row.total.toFixed(1)} km</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
                           row.status === "✅"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-900/50"
                             : "bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-900/30 dark:text-rose-200 dark:border-rose-900/50"
                         }`}
                       >
-                        {row.status === "✅" ? "On track" : "Not met"}
+                        {row.status === "✅" ? (
+                          <>
+                            <CheckIcon className="h-3.5 w-3.5" /> On track
+                          </>
+                        ) : (
+                          <>
+                            <XIcon className="h-3.5 w-3.5" /> Not met
+                          </>
+                        )}
                       </span>
                     </td>
                   </tr>
