@@ -31,7 +31,7 @@ This file captures the current project context so it can be reused if the sessio
 - Pending button component for async actions.
 - Dashboard: per-activity delete buttons with confirm dialog.
 - Leaderboard: rank column with top-3 medal styling (no emojis).
-- Microtransaction joke button (floating “+”).
+- Microtransaction placeholder button (floating “+”).
 - Activity edit page fixes; admin actions adjusted to inline server actions.
 - Week start intended Monday; timezone guard added.
 

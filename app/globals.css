@@ -30,6 +30,21 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Dark mode helpers to override common Tailwind surfaces */
+:root.dark body {
+  background: #0b1220;
+  color: #e5e7eb;
+}
+:root.dark .bg-white { background-color: #0f172a !important; }
+:root.dark .bg-slate-50 { background-color: #0d1324 !important; }
+:root.dark .bg-indigo-50 { background-color: #111827 !important; }
+:root.dark .text-slate-900 { color: #e5e7eb !important; }
+:root.dark .text-slate-700 { color: #cbd5e1 !important; }
+:root.dark .text-slate-600 { color: #cbd5e1 !important; }
+:root.dark .border-slate-200 { border-color: #1f2937 !important; }
+:root.dark .border-slate-100 { border-color: #1f2937 !important; }
+:root.dark .shadow-sm { box-shadow: 0 10px 30px rgba(0,0,0,0.35) !important; }
+
 /* Simple entrance animations */
 @keyframes fade-in {
   from { opacity: 0; }
