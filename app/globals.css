@@ -10,12 +10,12 @@
 }
 
 .dark {
-  --background: #0e0f12;
-  --foreground: #e5e7eb;
-  --card: #16181d;
-  --muted: #6b7280;
-  --secondary: #9ca3af;
-  --border: #1f2025;
+  --background: #0b0d11;
+  --foreground: #e8ecf5;
+  --card: #111827;
+  --muted: #9aa4b5;
+  --secondary: #a9b4c7;
+  --border: #1c2332;
 }
 
 @theme inline {
@@ -32,8 +32,27 @@ body {
 }
 
 html.dark body {
-  background: #0D0F12;
-  color: #F4F6FC;
+  background-color: #0b0d11;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08), transparent 32%),
+    radial-gradient(circle at 80% 0%, rgba(34, 197, 235, 0.08), transparent 35%),
+    radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.08), transparent 40%);
+  color: #f4f6fc;
+}
+
+html.dark header {
+  background: rgba(12, 14, 20, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom-color: #252f42 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+html.dark header nav a {
+  color: #c4cbe0;
+}
+
+html.dark header nav a:hover {
+  color: #e0e7ff;
 }
 
 /* Harmonized dark palette overrides */
@@ -42,12 +61,44 @@ html.dark .bg-slate-50 { background-color: #0D0F12 !important; }
 html.dark .bg-indigo-50 { background-color: #15181E !important; }
 html.dark .text-slate-900 { color: #F4F6FC !important; }
 html.dark .text-slate-800 { color: #F4F6FC !important; }
-html.dark .text-slate-700 { color: #F4F6FC !important; }
-html.dark .text-slate-600 { color: #A1A7B3 !important; }
-html.dark .text-slate-500 { color: #A1A7B3 !important; }
-html.dark .border-slate-200 { border-color: #2A2F38 !important; }
-html.dark .border-slate-100 { border-color: #2A2F38 !important; }
-html.dark .shadow-sm { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important; }
+html.dark .text-slate-700 { color: #E2E7F1 !important; }
+html.dark .text-slate-600 { color: #BAC4D6 !important; }
+html.dark .text-slate-500 { color: #A9B4C7 !important; }
+html.dark .border-slate-200 { border-color: #252f42 !important; }
+html.dark .border-slate-100 { border-color: #252f42 !important; }
+html.dark .shadow-sm { box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45) !important; }
+
+/* Debug-only: neon check to verify dark class application; high specificity + overlay */
+html.dark .debug-neon,
+html.dark .debug-neon.debug-neon {
+  position: relative;
+  background-color: rgba(16, 185, 129, 0.28) !important;
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, 0.9),
+    0 0 0 10px rgba(16, 185, 129, 0.15),
+    0 10px 35px rgba(16, 185, 129, 0.35);
+}
+
+html.dark .debug-neon::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 2px dashed rgba(16, 185, 129, 0.7);
+  box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Force overlay when base background utilities use !important */
+html.dark .debug-neon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(16, 185, 129, 0.18);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
 
 
 /* Simple entrance animations */

@@ -48,17 +48,29 @@ export const todayLocalIso = (timeZone = DEFAULT_TZ) =>
 
 const zonedStartOfDay = (date: Date, timeZone = DEFAULT_TZ) => {
   const map = getDatePartsInTz(date, timeZone);
-  // Construct a date at local midnight (interpreted in local time when rendered).
-  return new Date(`${map.year}-${map.month}-${map.day}T00:00:00`);
+  // Construct a stable UTC date for the local (timeZone) midnight to avoid host TZ drift.
+  return new Date(Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day)));
 };
 
-export const getWeekRange = (date: Date, weekStartDay: number): WeekRange => {
-  const day = date.getDay();
+const weekdayIndexInTz = (date: Date, timeZone = DEFAULT_TZ) => {
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    weekday: "short",
+  }).format(date);
+  return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekday);
+};
+
+export const getWeekRange = (
+  date: Date,
+  weekStartDay: number,
+  timeZone = DEFAULT_TZ
+): WeekRange => {
+  const day = weekdayIndexInTz(date, timeZone);
   const distanceFromStart = (day - weekStartDay + 7) % 7;
-  const start = zonedStartOfDay(date);
-  start.setDate(start.getDate() - distanceFromStart);
+  const start = zonedStartOfDay(date, timeZone);
+  start.setUTCDate(start.getUTCDate() - distanceFromStart);
   const end = new Date(start);
-  end.setDate(start.getDate() + 6);
+  end.setUTCDate(start.getUTCDate() + 6);
   return { start, end };
 };
 
@@ -68,8 +80,8 @@ export const formatWeekLabel = (range: WeekRange) => {
   return `${startStr} → ${endStr}`;
 };
 
-export const getCurrentWeekRange = (weekStartDay: number) =>
-  getWeekRange(new Date(), weekStartDay);
+export const getCurrentWeekRange = (weekStartDay: number, timeZone = DEFAULT_TZ) =>
+  getWeekRange(new Date(), weekStartDay, timeZone);
 
 export const calculateStreak = (
   weeklyResults: { week_start_date: string; met_target: boolean }[],

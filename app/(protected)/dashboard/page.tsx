@@ -127,7 +127,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 animate-slide-up delay-3">
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border dark:bg-[rgba(16,185,129,0.35)]">
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border debug-neon">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">This Week</p>
@@ -161,8 +161,7 @@ export default async function DashboardPage() {
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
             <span>
-              Week window: {week.start.toISOString().slice(0, 10)} →{" "}
-              {week.end.toISOString().slice(0, 10)}
+              Week window: {formatDateLocal(week.start)} → {formatDateLocal(week.end)}
             </span>
             <Link
               href="/activities/new"
@@ -173,7 +172,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border dark:bg-[rgba(16,185,129,0.35)]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border debug-neon">
           <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">Current streak</p>
           <p className="mt-2 text-3xl font-semibold">{streak} week(s)</p>
           <p className="mt-1 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
