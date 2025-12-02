@@ -157,11 +157,11 @@ export const updateActivityAction = async (
     screenshot_url: (formData.get("screenshot_url") as string) || null,
   };
 
-  const query = supabase.from("activities").update(payload).eq("id", activityId);
-  if (profile?.role !== "admin") {
-    query.eq("user_id", session.user.id);
-  }
-  await query;
+  await supabase
+    .from("activities")
+    .update(payload)
+    .eq("id", activityId)
+    .eq("user_id", session.user.id);
 
   await recomputeWeeklyResult(supabase, {
     userId: session.user.id,
@@ -189,11 +189,11 @@ export const deleteActivityAction = async (activityId: string) => {
     .eq("id", activityId)
     .maybeSingle();
 
-  const del = supabase.from("activities").delete().eq("id", activityId);
-  if (profile?.role !== "admin") {
-    del.eq("user_id", session.user.id);
-  }
-  await del;
+  await supabase
+    .from("activities")
+    .delete()
+    .eq("id", activityId)
+    .eq("user_id", session.user.id);
 
   if (activity?.activity_date) {
     await recomputeWeeklyResult(supabase, {

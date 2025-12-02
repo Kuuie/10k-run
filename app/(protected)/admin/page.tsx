@@ -6,6 +6,7 @@ import {
 } from "@/app/actions";
 import { requireSession, fetchProfile } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
+import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export default async function AdminPage() {
   const { supabase, userId } = await requireSession();
@@ -21,12 +22,13 @@ export default async function AdminPage() {
   let users: any[] = [];
   let weeklyResults: any[] = [];
   try {
+    const adminClient = createAdminSupabaseClient();
     const [u, w] = await Promise.all([
-      supabase
+      adminClient
         .from("users")
         .select("id, email, name, role, active, created_at")
         .order("created_at", { ascending: false }),
-      supabase
+      adminClient
         .from("weekly_results")
         .select(
           "id, user_id, week_start_date, week_end_date, total_distance_km, met_target, overridden_by_admin, users(name,email)"

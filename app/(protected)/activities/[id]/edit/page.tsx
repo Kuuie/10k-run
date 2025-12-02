@@ -19,6 +19,7 @@ export default async function EditActivityPage({
       .from("activities")
       .select("*")
       .eq("id", params.id)
+      .eq("user_id", userId)
       .maybeSingle();
     if (error) throw error;
     if (data) activity = data as ActivitiesRow;
