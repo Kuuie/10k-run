@@ -249,11 +249,6 @@ export default async function DashboardPage() {
                       <button
                         type="submit"
                         className="text-red-500"
-                        onClick={(e) => {
-                          if (!confirm("Delete this activity?")) {
-                            e.preventDefault();
-                          }
-                        }}
                       >
                         Delete
                       </button>
