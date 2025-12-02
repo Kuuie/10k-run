@@ -10,10 +10,15 @@ type Theme = "light" | "dark";
 const setDocumentTheme = (theme: Theme) => {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
+  const body = document.body;
   if (theme === "dark") {
     root.classList.add("dark");
+    body.classList.add("dark");
+    root.setAttribute("data-theme", "dark");
   } else {
     root.classList.remove("dark");
+    body.classList.remove("dark");
+    root.removeAttribute("data-theme");
   }
 };
 
@@ -21,9 +26,13 @@ export const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    const stored = (typeof localStorage !== "undefined"
-      ? (localStorage.getItem(THEME_KEY) as Theme | null)
-      : null) || "light";
+    const stored =
+      (typeof localStorage !== "undefined"
+        ? (localStorage.getItem(THEME_KEY) as Theme | null)
+        : null) ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
     setTheme(stored);
     setDocumentTheme(stored);
   }, []);
