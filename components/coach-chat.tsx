@@ -42,6 +42,7 @@ export function CoachChat({ stats }: Props) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [droppedImage, setDroppedImage] = useState<{ name: string; preview: string } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -67,7 +68,7 @@ export function CoachChat({ stats }: Props) {
     setMessages((prev) => [...prev, msg]);
   };
 
-  const handleCoachResponse = async (userText?: string) => {
+  const handleCoachResponse = async (userText?: string, imageData?: string) => {
     setLoading(true);
     try {
       const res = await fetch("/api/coach", {
@@ -77,6 +78,7 @@ export function CoachChat({ stats }: Props) {
           stats,
           history: recentApiHistory,
           userMessage: userText ?? "",
+          imageData,
         }),
       });
 
@@ -122,6 +124,26 @@ export function CoachChat({ stats }: Props) {
     await handleCoachResponse();
   };
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!e.dataTransfer.files?.length) return;
+    const file = e.dataTransfer.files[0];
+    if (!file.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(file);
+    setDroppedImage({ name: file.name, preview: url });
+    addMessage({
+      role: "coach",
+      content: "Got your screenshot—analyzing it for distance and time...",
+    });
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      await handleCoachResponse(undefined, base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-elevated">
       <div className="flex items-center justify-between">
@@ -159,6 +181,8 @@ export function CoachChat({ stats }: Props) {
       <div
         ref={listRef}
         className="mt-4 h-64 space-y-3 overflow-y-auto rounded-xl border border-slate-100 p-3 dark:border-darkTheme-border dark:bg-darkTheme-card"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
       >
         {messages.map((msg, idx) => (
           <div
@@ -179,6 +203,35 @@ export function CoachChat({ stats }: Props) {
           </div>
         )}
       </div>
+
+      {droppedImage && (
+        <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 text-sm text-indigo-900 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
+          <div className="flex items-center justify-between">
+            <div className="font-semibold text-xs uppercase tracking-wide text-indigo-700 dark:text-darkTheme-text-secondary">
+              Screenshot detected
+            </div>
+            <button
+              type="button"
+              className="text-xs text-indigo-600 hover:underline dark:text-darkTheme-text-secondary"
+              onClick={() => {
+                setDroppedImage(null);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="mt-2 flex items-center gap-3">
+            <img
+              src={droppedImage.preview}
+              alt={droppedImage.name}
+              className="h-16 w-16 rounded-lg object-cover ring-1 ring-indigo-200 dark:ring-darkTheme-border"
+            />
+            <div className="flex-1 space-y-1 text-xs text-slate-600 dark:text-darkTheme-text-secondary">
+              Coach is analyzing the screenshot for distance/time and will ask to confirm adding it.
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mt-4 flex items-center gap-2">
         <input

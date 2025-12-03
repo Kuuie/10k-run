@@ -70,7 +70,12 @@ const checkAndIncrementRate = (userId: string) => {
   return { allowed: true };
 };
 
-const buildPrompt = (stats: StatsPayload, history: ChatHistory, userMessage?: string) => {
+const buildPrompt = (
+  stats: StatsPayload,
+  history: ChatHistory,
+  userMessage?: string,
+  hasImage?: boolean
+) => {
   const recentLines = history
     .slice(-6)
     .map((m) => `${m.role === "assistant" ? "Coach" : "User"}: ${m.content}`)
@@ -111,7 +116,9 @@ Respond with a single short, specific message only.`,
         recentActivities ? `Recent activities: ${recentActivities}.` : "No recent activities recorded.",
         userMessage ? `User says: "${userMessage}".` : "User did not ask anything specific.",
         recentLines ? `Recent chat:\n${recentLines}` : "No recent chat yet.",
-        "Give a fun, concise reply (1-2 sentences), encouraging and slightly cheeky but kind.",
+        hasImage
+          ? "An image screenshot of a run is provided—extract distance (km) and time (minutes). State what you see and ask if the user wants to add this activity."
+          : "Give a fun, concise reply (1-2 sentences), encouraging and slightly cheeky but kind.",
       ].join(" "),
     },
   ];
@@ -125,10 +132,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { history, stats, userMessage } = (await req.json()) as {
+    const { history, stats, userMessage, imageData } = (await req.json()) as {
       history?: ChatHistory;
       stats?: StatsPayload;
       userMessage?: string;
+      imageData?: string;
     };
 
     if (!stats || typeof stats.totalKm !== "number" || typeof stats.targetKm !== "number") {
@@ -143,7 +151,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const messages = buildPrompt(stats, history ?? [], userMessage);
+    const messages = buildPrompt(stats, history ?? [], userMessage, Boolean(imageData));
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -152,19 +160,43 @@ export async function POST(req: Request) {
       );
     }
 
-    const model = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+    const textModel = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+    const visionModel = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
+    const model = imageData ? visionModel : textModel;
+
+    const payload = imageData
+      ? {
+          model,
+          messages: [
+            {
+              role: "system",
+              content: messages[0].content,
+            },
+            {
+              role: "user",
+              content: [
+                { type: "text", text: messages[1].content },
+                { type: "image_url", image_url: { url: imageData } },
+              ],
+            },
+          ],
+          temperature: 0.8,
+          max_tokens: 120,
+        }
+      : {
+          model,
+          messages,
+          temperature: 0.8,
+          max_tokens: 120,
+        };
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.8,
-        max_tokens: 120,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
