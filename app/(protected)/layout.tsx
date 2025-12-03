@@ -21,24 +21,24 @@ export default async function ProtectedLayout({
       <header className="border-b border-slate-200 bg-white dark:border-darkTheme-border dark:bg-darkTheme-elevated">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="text-lg font-semibold hover:text-indigo-600">
+            <Link prefetch href="/dashboard" className="text-lg font-semibold hover:text-indigo-600">
               10K Weekly Challenge
             </Link>
             <nav className="flex items-center gap-4 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
-              <Link href="/dashboard" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
+              <Link prefetch href="/dashboard" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
                 Dashboard
               </Link>
-              <Link href="/activities/new" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
+              <Link prefetch href="/activities/new" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
                 Add Activity
               </Link>
-              <Link href="/leaderboard" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
+              <Link prefetch href="/leaderboard" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
                 Leaderboard
               </Link>
-              <Link href="/profile" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
+              <Link prefetch href="/profile" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
                 Profile
               </Link>
               {isAdmin && (
-                <Link href="/admin" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
+                <Link prefetch href="/admin" className="hover:text-slate-900 dark:hover:text-darkTheme-text-primary">
                   Admin
                 </Link>
               )}
