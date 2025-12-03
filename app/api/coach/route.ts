@@ -1,0 +1,209 @@
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+
+type ChatHistory = { role: "assistant" | "user"; content: string }[];
+
+type StatsPayload = {
+  totalKm: number;
+  targetKm: number;
+  toGo: number;
+  streak: number;
+  weekStart: string;
+  weekEnd: string;
+  activities?: {
+    activity_date: string;
+    distance_km: number;
+    duration_minutes: number | null;
+    activity_type: string;
+  }[];
+  userEmail?: string | null;
+};
+
+type RateRecord = {
+  hourStart: number;
+  hourCount: number;
+  dayStart: number;
+  dayCount: number;
+};
+
+const rateStore = new Map<string, RateRecord>();
+const HOURLY_LIMIT = 5;
+const DAILY_LIMIT = 20;
+
+const getDayStart = (now: Date) => {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+
+const checkAndIncrementRate = (userId: string) => {
+  const now = new Date();
+  const hourStart = new Date(now);
+  hourStart.setMinutes(0, 0, 0);
+  const hourTs = hourStart.getTime();
+  const dayTs = getDayStart(now);
+
+  const existing = rateStore.get(userId);
+  const record: RateRecord = existing ?? {
+    hourStart: hourTs,
+    hourCount: 0,
+    dayStart: dayTs,
+    dayCount: 0,
+  };
+
+  if (record.hourStart !== hourTs) {
+    record.hourStart = hourTs;
+    record.hourCount = 0;
+  }
+  if (record.dayStart !== dayTs) {
+    record.dayStart = dayTs;
+    record.dayCount = 0;
+  }
+
+  if (record.hourCount >= HOURLY_LIMIT || record.dayCount >= DAILY_LIMIT) {
+    return { allowed: false };
+  }
+
+  record.hourCount += 1;
+  record.dayCount += 1;
+  rateStore.set(userId, record);
+  return { allowed: true };
+};
+
+const buildPrompt = (stats: StatsPayload, history: ChatHistory, userMessage?: string) => {
+  const recentLines = history
+    .slice(-6)
+    .map((m) => `${m.role === "assistant" ? "Coach" : "User"}: ${m.content}`)
+    .join("\n");
+
+  const recentActivities = (stats.activities ?? [])
+    .slice(0, 8)
+    .map(
+      (a) =>
+        `${a.activity_date}: ${a.activity_type.toUpperCase()} ${a.distance_km.toFixed(1)} km${
+          a.duration_minutes ? ` in ${a.duration_minutes} min` : ""
+        }`
+    )
+    .join("; ");
+
+  const roastyNote =
+    stats.userEmail && stats.userEmail.toLowerCase() === "haquanghuytran@gmail.com"
+      ? "User is Huy. You may be a bit extra cheeky with Huy, but never mean or personal—keep it playful and kind."
+      : "Keep it kind and lightly cheeky.";
+
+  return [
+    {
+      role: "system",
+      content: `
+You are Coach Kuro, a playful running coach for a 10 km weekly challenge.
+Tone: upbeat, brief (1-2 sentences), encouraging, lightly cheeky, never mean. ${roastyNote}
+Strict safety: no health/appearance/weight/body comments; no profanity; no shaming; no unsafe content.
+You can create concise run plans when asked: include distance per session, suggested pace based on recent runs, and mix easy runs / intervals / long runs. Keep it short and actionable.
+Respond with a single short message only.`,
+    },
+    {
+      role: "user",
+      content: [
+        `Stats: ${stats.totalKm.toFixed(1)} km / ${stats.targetKm.toFixed(1)} km.`,
+        `Remaining: ${Math.max(0, stats.toGo).toFixed(1)} km.`,
+        `Streak: ${stats.streak} week(s).`,
+        `Week window: ${stats.weekStart} → ${stats.weekEnd}.`,
+        recentActivities ? `Recent activities: ${recentActivities}.` : "No recent activities recorded.",
+        userMessage ? `User says: "${userMessage}".` : "User did not ask anything specific.",
+        recentLines ? `Recent chat:\n${recentLines}` : "No recent chat yet.",
+        "Give a fun, concise reply (1-2 sentences), encouraging and slightly cheeky but kind.",
+      ].join(" "),
+    },
+  ];
+};
+
+export async function POST(req: Request) {
+  try {
+    const { session } = await getSession();
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { history, stats, userMessage } = (await req.json()) as {
+      history?: ChatHistory;
+      stats?: StatsPayload;
+      userMessage?: string;
+    };
+
+    if (!stats || typeof stats.totalKm !== "number" || typeof stats.targetKm !== "number") {
+      return NextResponse.json({ error: "Missing stats" }, { status: 400 });
+    }
+
+    const rate = checkAndIncrementRate(userId);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "You’ve hit your hype quota for now — try again later!" },
+        { status: 429 }
+      );
+    }
+
+    const messages = buildPrompt(stats, history ?? [], userMessage);
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "OpenAI API key missing" },
+        { status: 500 }
+      );
+    }
+
+    const model = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.8,
+        max_tokens: 120,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      console.error("OpenAI error", response.status, err);
+
+      if (response.status === 429) {
+        return NextResponse.json(
+          {
+            error:
+              "You’ve hit the coach’s quota (OpenAI limit). Check billing or try later.",
+          },
+          { status: 429 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Coach is busy—please try again soon." },
+        { status: 502 }
+      );
+    }
+
+    const data = await response.json();
+    const message: string | undefined =
+      data?.choices?.[0]?.message?.content?.trim();
+
+    if (!message) {
+      return NextResponse.json(
+        { error: "No response from coach" },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({ message });
+  } catch (error) {
+    console.error("Coach route error", error);
+    return NextResponse.json(
+      { error: "Coach stumbled—try again in a moment." },
+      { status: 500 }
+    );
+  }
+}

@@ -14,6 +14,7 @@ import {
 } from "@/lib/week";
 import { deleteActivityAction } from "@/app/actions";
 import { CheckIcon, XIcon } from "@/components/icons";
+import { CoachChat } from "@/components/coach-chat";
 
 const ProgressBar = ({ value, target }: { value: number; target: number }) => {
   const pct = Math.min(100, Math.round((value / target) * 100));
@@ -71,6 +72,21 @@ export default async function DashboardPage() {
   );
 
   const toGo = Math.max(0, Number(challenge.weekly_distance_target_km) - totalKm);
+  const coachStats = {
+    totalKm: Number(totalKm),
+    targetKm: Number(challenge.weekly_distance_target_km),
+    toGo: Math.max(0, Number(challenge.weekly_distance_target_km) - Number(totalKm)),
+    streak,
+    weekStart: formatDateLocal(week.start),
+    weekEnd: formatDateLocal(week.end),
+    activities: activities.map((a) => ({
+      activity_date: a.activity_date,
+      distance_km: Number(a.distance_km),
+      duration_minutes: a.duration_minutes ? Number(a.duration_minutes) : null,
+      activity_type: a.activity_type,
+    })),
+    userEmail: user?.email || null,
+  };
   const today = now;
   const dayPills = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(week.start);
@@ -291,6 +307,10 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-1">
+        <CoachChat stats={coachStats} />
       </div>
     </div>
   );
