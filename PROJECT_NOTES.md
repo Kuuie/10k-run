@@ -27,13 +27,12 @@ This file captures the current project context so it can be reused if the sessio
 - Admin can edit/delete any activity and override weekly results; users can edit/delete their own activities.
 
 ## Recent changes (uncommitted)
-- Dark mode variables + theme toggle; icon set swapped to inline SVGs.
-- Pending button component for async actions.
-- Dashboard: per-activity delete buttons with confirm dialog.
-- Leaderboard: rank column with top-3 medal styling (no emojis).
-- Microtransaction placeholder button (floating “+”).
-- Activity edit page fixes; admin actions adjusted to inline server actions.
-- Week start intended Monday; timezone guard added.
+- Dark mode refreshed with gradient backdrop, softer borders/shadows (light mode unchanged).
+- Timezone-aware week range (getWeekRange) to avoid off-by-one windows.
+- Dashboard debug overlay removed; branding reverted to default typography.
+- Theme toggle + inline SVG icon set; pending button for async actions.
+- Dashboard activity delete buttons with confirm; leaderboard medals; microtransaction placeholder (“Pay $5 to reduce 1 km”).
+- Activity edit page fixes; admin actions inline server actions; week start intended Monday with guards.
 
 ## Known issues / To verify after restart
 - Run `npm run build` locally (sandbox currently blocks temp file creation) to catch any lingering TS errors.
@@ -41,6 +40,7 @@ This file captures the current project context so it can be reused if the sessio
 - Magic link redirect should use `NEXT_PUBLIC_SITE_URL/SITE_URL`; confirm Supabase auth redirect URLs.
 - Admin page and activity edit/delete rely on RLS policies allowing users to manage their own rows and admins to manage all rows.
 - If activities duplicate on rapid submit, consider disabling button via pending state (component exists).
+- Live2D pet experiment was skipped (package unavailable); none added.
 
 ## Files touched recently
 - `app/actions.ts`

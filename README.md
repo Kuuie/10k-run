@@ -15,6 +15,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=   # server-only, for admin actions
 SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 ### Database
@@ -41,3 +42,8 @@ Visit http://localhost:3000. Use “Send sign-in link” to log in via Supabase 
 - Admin: invite users, toggle active/inactive, override weekly results
 - Weekly logic: week_start_day respected, streak computed from consecutive met weeks
 - TODO: OCR hook placeholder near screenshot URL input
+
+### Recent updates
+- Dark mode refreshed (gradient backdrop, softer borders/shadows) without altering light mode.
+- Week range calculation now uses the configured timezone to avoid off-by-one windows.
+- Debug visual helpers removed from the dashboard; branding/layout unchanged.
