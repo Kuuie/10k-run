@@ -12,6 +12,7 @@ import {
   getWeekRange,
 } from "@/lib/week";
 import { CheckIcon, XIcon } from "@/components/icons";
+import { createServiceSupabaseClient } from "@/lib/supabase/service";
 
 const rankMeta = [
   {
@@ -35,7 +36,8 @@ const rankMeta = [
 ];
 
 export default async function LeaderboardPage() {
-  const { supabase } = await requireSession();
+  await requireSession(); // ensure authenticated
+  const supabase = createServiceSupabaseClient();
   const challenge = await getActiveChallenge(supabase);
   const currentWeek = getWeekRange(new Date(), challenge.week_start_day);
 
@@ -43,6 +45,20 @@ export default async function LeaderboardPage() {
     getCurrentWeekLeaderboard(supabase, challenge),
     getOverallStats(supabase, challenge),
   ]);
+
+  const overallWithStreak = overall
+    .map((row) => ({
+      ...row,
+      streak: calculateStreak(
+        row.weeks,
+        new Date(challenge.start_date),
+        challenge.week_start_day
+      ),
+    }))
+    .sort((a, b) => {
+      if (b.totalKm !== a.totalKm) return b.totalKm - a.totalKm;
+      return (b.streak ?? 0) - (a.streak ?? 0);
+    });
 
   return (
     <div className="space-y-6">
@@ -91,7 +107,11 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card`}
+                    className={`${
+                      meta
+                        ? `${meta.bg} ${meta.border} bg-opacity-90`
+                        : "odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card"
+                    }`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">
@@ -160,7 +180,7 @@ export default async function LeaderboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white dark:divide-darkTheme-border dark:bg-darkTheme-elevated">
-              {overall.map((row, idx) => {
+              {overallWithStreak.map((row, idx) => {
                 const meta = rankMeta[idx];
                 const rankBadge = meta ? (
                   <span
@@ -174,15 +194,14 @@ export default async function LeaderboardPage() {
                   </span>
                 );
 
-                const streak = calculateStreak(
-                  row.weeks,
-                  new Date(challenge.start_date),
-                  challenge.week_start_day
-                );
                 return (
                   <tr
                     key={row.userId}
-                    className={`${meta ? `${meta.bg} ${meta.border}` : ""} odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card`}
+                    className={`${
+                      meta
+                        ? `${meta.bg} ${meta.border} bg-opacity-90`
+                        : "odd:bg-white even:bg-slate-50 dark:odd:bg-darkTheme-elevated dark:even:bg-darkTheme-card"
+                    }`}
                   >
                     <td className="px-4 py-3">{rankBadge}</td>
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-darkTheme-text-primary">
@@ -198,11 +217,11 @@ export default async function LeaderboardPage() {
                     <td className="px-4 py-3">
                       {Number(row.totalKm).toFixed(1)} km
                     </td>
-                    <td className="px-4 py-3">{streak} week(s)</td>
+                    <td className="px-4 py-3">{row.streak} week(s)</td>
                   </tr>
                 );
               })}
-              {overall.length === 0 && (
+              {overallWithStreak.length === 0 && (
                 <tr>
                   <td
                     colSpan={4}
