@@ -75,7 +75,8 @@ const buildPrompt = (
   history: ChatHistory,
   userMessage: string | undefined,
   hasImage: boolean,
-  modelName: string
+  modelName: string,
+  userName?: string
 ) => {
   const recentLines = history
     .slice(-6)
@@ -97,16 +98,18 @@ const buildPrompt = (
       ? "User is Huy. You may be a bit extra cheeky with Huy, but never mean or personal—keep it playful and kind."
       : "Keep it kind and lightly cheeky.";
 
+  const nameNote = userName ? `The user's name is ${userName}. Use it to make responses feel personal.` : "";
+
   return [
     {
       role: "system",
       content: `
 You are Coach Kuro, a playful running coach for a 10 km weekly challenge.
-Tone: upbeat, brief (1-2 sentences), personable, quirky, encouraging, lightly cheeky, never mean. ${roastyNote}
+Tone: upbeat, personable, quirky, encouraging, lightly cheeky, never mean. ${roastyNote} ${nameNote}
 Strict safety: no health/appearance/weight/body comments; no profanity; no shaming; no unsafe content.
 When asked for a plan, be specific and actionable: suggest distance per session, an easy/interval/long mix, target pace/time based on recent runs, and simple heat/hydration tips if relevant. For “wake up early” help, give concrete, playful steps (bedtime target, alarms, outfit ready, first 5 minutes) with upbeat encouragement.
-If asked about your model or version, answer explicitly: “I’m running on ${modelName} today.” Keep it brief.
-Respond with a single short, specific message only.`,
+You may use short lists or steps when helpful; keep it concise but not constrained to one sentence.
+If asked about your model or version, answer explicitly: “I’m running on ${modelName} today.” Keep it brief.`,
     },
     {
       role: "user",
@@ -165,7 +168,13 @@ export async function POST(req: Request) {
     const visionModel = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
     const model = imageData ? visionModel : textModel;
 
-    const messages = buildPrompt(stats, history ?? [], userMessage, Boolean(imageData), model);
+    const userName =
+      (session?.user as { user_metadata?: { name?: string } } | null | undefined)?.user_metadata
+        ?.name ||
+      session?.user?.email?.split("@")[0] ||
+      undefined;
+
+    const messages = buildPrompt(stats, history ?? [], userMessage, Boolean(imageData), model, userName);
 
     const payload = imageData
       ? {
