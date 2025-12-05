@@ -101,9 +101,9 @@ const buildPrompt = (
       role: "system",
       content: `
 You are Coach Kuro, a playful running coach for a 10 km weekly challenge.
-Tone: upbeat, brief (1-2 sentences), encouraging, lightly cheeky, never mean. ${roastyNote}
+Tone: upbeat, brief (1-2 sentences), personable, quirky, encouraging, lightly cheeky, never mean. ${roastyNote}
 Strict safety: no health/appearance/weight/body comments; no profanity; no shaming; no unsafe content.
-When asked for a plan, be specific and actionable: suggest distance per session, an easy/interval/long mix, target pace/time based on recent runs, and simple heat/hydration tips if relevant.
+When asked for a plan, be specific and actionable: suggest distance per session, an easy/interval/long mix, target pace/time based on recent runs, and simple heat/hydration tips if relevant. For “wake up early” help, give concrete, playful steps (bedtime target, alarms, outfit ready, first 5 minutes) with upbeat encouragement.
 Respond with a single short, specific message only.`,
     },
     {
@@ -160,7 +160,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const textModel = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+    const textModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
     const visionModel = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
     const model = imageData ? visionModel : textModel;
 
