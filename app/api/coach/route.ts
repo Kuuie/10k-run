@@ -73,8 +73,9 @@ const checkAndIncrementRate = (userId: string) => {
 const buildPrompt = (
   stats: StatsPayload,
   history: ChatHistory,
-  userMessage?: string,
-  hasImage?: boolean
+  userMessage: string | undefined,
+  hasImage: boolean,
+  modelName: string
 ) => {
   const recentLines = history
     .slice(-6)
@@ -104,6 +105,7 @@ You are Coach Kuro, a playful running coach for a 10 km weekly challenge.
 Tone: upbeat, brief (1-2 sentences), personable, quirky, encouraging, lightly cheeky, never mean. ${roastyNote}
 Strict safety: no health/appearance/weight/body comments; no profanity; no shaming; no unsafe content.
 When asked for a plan, be specific and actionable: suggest distance per session, an easy/interval/long mix, target pace/time based on recent runs, and simple heat/hydration tips if relevant. For “wake up early” help, give concrete, playful steps (bedtime target, alarms, outfit ready, first 5 minutes) with upbeat encouragement.
+If asked about your model or version, answer explicitly: “I’m running on ${modelName} today.” Keep it brief.
 Respond with a single short, specific message only.`,
     },
     {
@@ -151,7 +153,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const messages = buildPrompt(stats, history ?? [], userMessage, Boolean(imageData));
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -160,9 +161,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const textModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
+    const textModel = process.env.OPENAI_MODEL || "gpt-4o";
     const visionModel = process.env.OPENAI_VISION_MODEL || "gpt-4o-mini";
     const model = imageData ? visionModel : textModel;
+
+    const messages = buildPrompt(stats, history ?? [], userMessage, Boolean(imageData), model);
 
     const payload = imageData
       ? {
