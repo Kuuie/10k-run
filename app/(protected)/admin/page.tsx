@@ -22,9 +22,10 @@ export default async function AdminPage() {
 
   let users: any[] = [];
   let weeklyResults: any[] = [];
+  let recentActivities: any[] = [];
   try {
     const adminClient = createAdminSupabaseClient();
-    const [u, w] = await Promise.all([
+    const [u, w, a] = await Promise.all([
       adminClient
         .from("users")
         .select("id, email, name, role, active, created_at")
@@ -37,11 +38,21 @@ export default async function AdminPage() {
         .eq("challenge_id", challenge.id)
         .order("week_start_date", { ascending: false })
         .limit(20),
+      adminClient
+        .from("activities")
+        .select(
+          "id, user_id, activity_date, distance_km, duration_minutes, activity_type, created_at, users(name,email)"
+        )
+        .eq("challenge_id", challenge.id)
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
     if (u.error) throw u.error;
     if (w.error) throw w.error;
+    if (a.error) throw a.error;
     users = u.data ?? [];
     weeklyResults = w.data ?? [];
+    recentActivities = a.data ?? [];
   } catch (err) {
     console.error("Admin data load failed", err);
   }
@@ -152,6 +163,68 @@ export default async function AdminPage() {
                     className="px-4 py-4 text-center text-slate-600"
                   >
                     No users yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Recent activities</h2>
+          <span className="text-xs text-slate-500">Latest 50 entries</span>
+        </div>
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
+          <table className="min-w-full divide-y divide-slate-100 text-sm">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-4 py-3">User</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Distance</th>
+                <th className="px-4 py-3">Duration</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Logged at</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {recentActivities.map((act) => {
+                const a = act as any;
+                const user = a.users;
+                return (
+                  <tr key={a.id}>
+                    <td className="px-4 py-3 font-medium text-slate-900">
+                      <div className="flex flex-col">
+                        <span>{user?.name || user?.email || "User"}</span>
+                        <span className="text-xs text-slate-500">
+                          {user?.email || "—"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{a.activity_date}</td>
+                    <td className="px-4 py-3">
+                      {Number(a.distance_km ?? 0).toFixed(1)} km
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.duration_minutes ? `${a.duration_minutes} min` : "—"}
+                    </td>
+                    <td className="px-4 py-3 uppercase text-slate-700">
+                      {a.activity_type || "run"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">
+                      {a.created_at?.replace("T", " ").replace("Z", "")}
+                    </td>
+                  </tr>
+                );
+              })}
+              {recentActivities.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-4 py-4 text-center text-slate-600"
+                  >
+                    No activities yet.
                   </td>
                 </tr>
               )}
