@@ -43,6 +43,8 @@ export function CoachChat({ stats }: Props) {
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [droppedImage, setDroppedImage] = useState<{ name: string; preview: string } | null>(null);
+  const [showMotivationVideo, setShowMotivationVideo] = useState(false);
+  const [promptMotivationVideo, setPromptMotivationVideo] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -116,6 +118,13 @@ export function CoachChat({ stats }: Props) {
     if (!trimmed) return;
     setInput("");
     addMessage({ role: "user", content: trimmed });
+    if (/\bmotivat/i.test(trimmed)) {
+      setPromptMotivationVideo(true);
+      addMessage({
+        role: "coach",
+        content: "Want me to play today’s motivation video? I can pop it up.",
+      });
+    }
     await handleCoachResponse(trimmed);
   };
 
@@ -150,7 +159,7 @@ export function CoachChat({ stats }: Props) {
         <div>
           <h2 className="text-lg font-semibold">Coach Chat</h2>
           <p className="text-sm text-slate-500 dark:text-darkTheme-text-secondary">
-            Fun, encouraging, lightly cheeky—but always kind.
+            Quick pep & tips — ask for a motivational video anytime.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -233,6 +242,31 @@ export function CoachChat({ stats }: Props) {
         </div>
       )}
 
+      {promptMotivationVideo && (
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 text-sm text-indigo-900 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
+          <div className="font-semibold text-sm">Play today’s motivational video?</div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-500 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
+              onClick={() => {
+                setPromptMotivationVideo(false);
+                setShowMotivationVideo(true);
+              }}
+            >
+              Yes, play it
+            </button>
+            <button
+              type="button"
+              className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 dark:bg-darkTheme-border dark:text-darkTheme-text-primary"
+              onClick={() => setPromptMotivationVideo(false)}
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 flex items-center gap-2">
         <input
           value={input}
@@ -256,6 +290,29 @@ export function CoachChat({ stats }: Props) {
         </button>
       </div>
         </>
+      )}
+
+      {showMotivationVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darkTheme-elevated">
+            <button
+              type="button"
+              className="absolute right-3 top-3 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-darkTheme-card dark:text-darkTheme-text-primary dark:hover:bg-darkTheme-border"
+              onClick={() => setShowMotivationVideo(false)}
+            >
+              Close
+            </button>
+            <div className="w-[92vw] max-w-6xl max-h-[85vh] bg-black">
+              <iframe
+                className="h-[70vh] max-h-[85vh] w-full"
+                src="https://www.youtube.com/embed/Vr6yKYnXpyU"
+                title="Motivation"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
