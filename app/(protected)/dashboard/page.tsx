@@ -115,6 +115,22 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 px-5 py-4 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:from-darkTheme-elevated dark:via-darkTheme-elevated dark:to-darkTheme-elevated">
+        <div className="flex flex-col gap-1">
+          <div className="inline-flex items-center gap-2">
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning">
+              Team Update: 10Ks conquered!
+            </span>
+          </div>
+          <p className="text-sm font-semibold text-amber-900 dark:text-darkTheme-text-primary">
+            Massive shoutout to everyone who crossed the finish line — absolute weapons. 💪
+          </p>
+          <p className="text-sm text-amber-800 dark:text-darkTheme-text-secondary">
+            And to our one runner who didn’t… don’t worry, every great story has a plot twist. Next week, we believe in your redemption run!
+          </p>
+        </div>
+      </div>
+
       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:bg-darkTheme-elevated dark:text-darkTheme-text-primary">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
