@@ -10,9 +10,10 @@ import { PendingButton } from "@/components/pending-button";
 export default async function EditActivityPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  if (!params.id || !/^[0-9a-fA-F-]{36}$/.test(params.id)) {
+  const { id } = await params;
+  if (!id) {
     notFound();
   }
   const { supabase, userId } = await requireSession();
@@ -22,7 +23,7 @@ export default async function EditActivityPage({
   let activity: ActivitiesRow | null = null;
   try {
     const client = profile?.role === "admin" ? adminClient : supabase;
-    const query = client.from("activities").select("*").eq("id", params.id);
+    const query = client.from("activities").select("*").eq("id", id);
     if (profile?.role !== "admin") {
       query.eq("user_id", userId);
     }
@@ -45,8 +46,8 @@ export default async function EditActivityPage({
   }
 
   const activityData = activity as ActivitiesRow;
-  const deleteAction = deleteActivityAction.bind(null, params.id);
-  const updateAction = updateActivityAction.bind(null, params.id);
+  const deleteAction = deleteActivityAction.bind(null, id);
+  const updateAction = updateActivityAction.bind(null, id);
 
   return (
     <div className="max-w-2xl animate-slide-up">
