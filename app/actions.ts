@@ -101,6 +101,104 @@ export const signInWithEmail = async (
   }
 };
 
+export const signInWithPassword = async (
+  _prevState: SignInState,
+  formData: FormData
+): Promise<SignInState> => {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email) {
+    return { error: "Email is required" };
+  }
+  if (!password) {
+    return { error: "Password is required" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (err: any) {
+    return { error: err?.message || "Sign-in failed" };
+  }
+
+  redirect("/dashboard");
+};
+
+export const signUpWithPassword = async (
+  _prevState: SignInState,
+  formData: FormData
+): Promise<SignInState> => {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+
+  if (!email) {
+    return { error: "Email is required" };
+  }
+  if (!password) {
+    return { error: "Password is required" };
+  }
+  if (password.length < 6) {
+    return { error: "Password must be at least 6 characters" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const base = getSiteBase();
+  const redirectTo = `${base}/auth/callback?next=/dashboard`;
+
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectTo,
+        data: { name },
+      },
+    });
+    if (error) {
+      return { error: error.message };
+    }
+    return { message: "Check your email to confirm your account." };
+  } catch (err: any) {
+    return { error: err?.message || "Sign-up failed" };
+  }
+};
+
+export const updatePasswordAction = async (
+  _prevState: SignInState,
+  formData: FormData
+): Promise<SignInState> => {
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!password) {
+    return { error: "Password is required" };
+  }
+  if (password.length < 6) {
+    return { error: "Password must be at least 6 characters" };
+  }
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { message: "Password updated successfully!" };
+};
+
 export const signOutAction = async () => {
   const supabase = await createServerSupabaseClient();
   await supabase.auth.signOut();

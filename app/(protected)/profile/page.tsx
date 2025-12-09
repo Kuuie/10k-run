@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireSession, fetchProfile } from "@/lib/auth";
 import { updateProfileAction } from "@/app/actions";
+import { PasswordSetupForm } from "@/components/password-setup-form";
 
 export default async function ProfilePage() {
   const { supabase, userId } = await requireSession();
@@ -8,14 +9,14 @@ export default async function ProfilePage() {
   if (!profile) redirect("/");
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-2xl space-y-6">
       <div className="animate-slide-up">
         <p className="text-sm uppercase tracking-[0.2em] text-sage-dark">
           Profile
         </p>
         <h1 className="text-3xl font-semibold text-olive">Your details</h1>
         <p className="text-olive/70">
-          Set the name shown across dashboard and leaderboard.
+          Manage your profile and login settings.
         </p>
       </div>
 
@@ -23,6 +24,7 @@ export default async function ProfilePage() {
         action={updateProfileAction}
         className="space-y-4 rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1"
       >
+        <h2 className="text-lg font-medium text-olive">Basic Info</h2>
         <label className="flex flex-col gap-2 text-sm font-medium text-olive">
           Name
           <input
@@ -40,6 +42,14 @@ export default async function ProfilePage() {
           Save profile
         </button>
       </form>
+
+      <div className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
+        <h2 className="mb-1 text-lg font-medium text-olive">Password Login</h2>
+        <p className="mb-4 text-sm text-olive/70">
+          Set up a password to sign in without a magic link. You can use either method after setting this up.
+        </p>
+        <PasswordSetupForm />
+      </div>
     </div>
   );
 }
