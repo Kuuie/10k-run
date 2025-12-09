@@ -41,7 +41,7 @@ const ProgressRing = ({
       <svg height={radius * 2} width={radius * 2} className="-rotate-90">
         {/* Background circle */}
         <circle
-          stroke="#e7e5e4"
+          className="stroke-cream-dark"
           fill="transparent"
           strokeWidth={strokeWidth}
           r={normalizedRadius}
@@ -69,8 +69,8 @@ const ProgressRing = ({
         </defs>
       </svg>
       <div className="absolute flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-stone-900">{total.toFixed(1)}</span>
-        <span className="text-sm text-stone-500">of {target} km</span>
+        <span className="text-3xl font-bold text-olive">{total.toFixed(1)}</span>
+        <span className="text-sm text-olive/70">of {target} km</span>
       </div>
     </div>
   );
