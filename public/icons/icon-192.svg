@@ -1,4 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="40" fill="#84a98c"/>
-  <text x="96" y="115" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="700" fill="white" text-anchor="middle">10K</text>
+  <!-- Background with rounded corners -->
+  <rect width="192" height="192" rx="42" fill="#84a98c"/>
+
+  <!-- Running figure silhouette -->
+  <g transform="translate(96, 70)">
+    <!-- Head -->
+    <circle cx="0" cy="-28" r="14" fill="white"/>
+    <!-- Body -->
+    <path d="M0,-14 L0,20" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <!-- Arms running pose -->
+    <path d="M0,0 L-22,-18" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    <path d="M0,0 L20,12" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    <!-- Legs running pose -->
+    <path d="M0,20 L-18,48" stroke="white" stroke-width="9" stroke-linecap="round"/>
+    <path d="M0,20 L22,42" stroke="white" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <!-- 10K text at bottom -->
+  <text x="96" y="165" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="white" text-anchor="middle">10K</text>
 </svg>
