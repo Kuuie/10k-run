@@ -14,27 +14,38 @@ import {
 import { CheckIcon, XIcon } from "@/components/icons";
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
 
+// Material Icon component
+const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
+  <span className={`material-icons-round ${className}`}>{name}</span>
+);
+
 const rankMeta = [
   {
     label: "1",
-    bg: "bg-amber-50",
-    text: "text-amber-800",
-    border: "border-amber-200",
-    rowBg: "bg-amber-50/50",
+    bg: "bg-amber-50 dark:bg-amber-900/30",
+    text: "text-amber-800 dark:text-amber-400",
+    border: "border-amber-200 dark:border-amber-700",
+    rowBg: "bg-amber-50/50 dark:bg-amber-900/20",
+    icon: "emoji_events",
+    iconColor: "text-amber-500",
   },
   {
     label: "2",
-    bg: "bg-slate-100",
-    text: "text-slate-600",
-    border: "border-slate-300",
-    rowBg: "bg-slate-50/50",
+    bg: "bg-slate-100 dark:bg-slate-700/50",
+    text: "text-slate-600 dark:text-slate-300",
+    border: "border-slate-300 dark:border-slate-600",
+    rowBg: "bg-slate-50/50 dark:bg-slate-800/30",
+    icon: "workspace_premium",
+    iconColor: "text-slate-400",
   },
   {
     label: "3",
-    bg: "bg-orange-50",
-    text: "text-orange-700",
-    border: "border-orange-200",
-    rowBg: "bg-orange-50/40",
+    bg: "bg-orange-50 dark:bg-orange-900/30",
+    text: "text-orange-700 dark:text-orange-400",
+    border: "border-orange-200 dark:border-orange-700",
+    rowBg: "bg-orange-50/40 dark:bg-orange-900/20",
+    icon: "military_tech",
+    iconColor: "text-orange-400",
   },
 ];
 
@@ -75,167 +86,135 @@ export default async function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1">
-        <div className="flex items-center justify-between">
+      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-olive">This week</h2>
           <span className="text-xs text-olive/60">
-            {formatDateLocalTz(currentWeek.start, DEFAULT_TZ)} → {formatDateLocalTz(currentWeek.end, DEFAULT_TZ)}
+            {formatDateLocalTz(currentWeek.start, DEFAULT_TZ).slice(5)} → {formatDateLocalTz(currentWeek.end, DEFAULT_TZ).slice(5)}
           </span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-cream-dark">
-          <table className="min-w-full divide-y divide-cream-dark text-sm">
-            <thead className="bg-sage-light/50 text-left text-xs font-semibold uppercase tracking-wide text-olive">
-              <tr>
-                <th className="px-4 py-3">Rank</th>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Total km</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cream-dark bg-cream">
-              {weekly.map((row, idx) => {
-                const meta = rankMeta[idx];
-                const rankBadge = meta ? (
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border}`}
-                  >
-                    {meta.label}
-                  </span>
-                ) : (
-                  <span className="text-xs font-semibold text-olive/50">
-                    #{idx + 1}
-                  </span>
-                );
 
-                return (
-                  <tr
-                    key={row.userId}
-                    className={
-                      meta
-                        ? meta.rowBg
-                        : "odd:bg-cream even:bg-sage-light/20"
-                    }
-                  >
-                    <td className="px-4 py-3">{rankBadge}</td>
-                    <td className="px-4 py-3 font-medium text-olive">
-                      <div className="flex items-center gap-2">
-                        <span className={idx === 0 ? "font-semibold" : ""}>
-                          {row.name}
-                        </span>
-                        <span className="text-xs text-olive/60">
-                          {row.email}
-                        </span>
+        {/* Mobile card layout */}
+        <div className="space-y-3">
+          {weekly.map((row, idx) => {
+            const meta = rankMeta[idx];
+            const isOnTrack = row.status === "✅";
+
+            return (
+              <div
+                key={row.userId}
+                className={`rounded-xl p-3 ${
+                  meta ? meta.rowBg : "bg-sage-light/20"
+                } border border-cream-dark`}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Rank */}
+                  <div className="flex-shrink-0">
+                    {meta ? (
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${meta.bg} ${meta.border} border`}>
+                        <Icon name={meta.icon} className={`text-xl ${meta.iconColor}`} />
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-olive">{row.total.toFixed(1)} km</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold border ${
-                          row.status === "✅"
-                            ? "bg-sage-light text-sage-dark border-sage"
-                            : "bg-rose-50 text-rose-700 border-rose-100"
-                        }`}
-                      >
-                        {row.status === "✅" ? (
-                          <>
-                            <CheckIcon className="h-3.5 w-3.5" /> On track
-                          </>
-                        ) : (
-                          <>
-                            <XIcon className="h-3.5 w-3.5" /> Not met
-                          </>
-                        )}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-              {weekly.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-4 py-4 text-center text-olive/60"
-                  >
-                    No activities logged this week yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cream-dark text-olive/60 font-semibold">
+                        {idx + 1}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User info */}
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-medium text-olive truncate ${idx === 0 ? "font-semibold" : ""}`}>
+                      {row.name}
+                    </p>
+                    <p className="text-xs text-olive/60 truncate">{row.email}</p>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-semibold text-olive">{row.total.toFixed(1)} km</p>
+                    <span
+                      className={`inline-flex items-center gap-1 text-xs font-medium ${
+                        isOnTrack ? "text-sage-dark" : "text-rose-600"
+                      }`}
+                    >
+                      {isOnTrack ? (
+                        <><CheckIcon className="h-3 w-3" /> On track</>
+                      ) : (
+                        <><XIcon className="h-3 w-3" /> Behind</>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {weekly.length === 0 && (
+            <div className="py-8 text-center text-olive/60">
+              No activities logged this week yet.
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
-        <div className="flex items-center justify-between">
+      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-olive">Overall</h2>
           <span className="text-xs text-olive/60">
             From {challenge.start_date}
           </span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-cream-dark">
-          <table className="min-w-full divide-y divide-cream-dark text-sm">
-            <thead className="bg-sage-light/50 text-left text-xs font-semibold uppercase tracking-wide text-olive">
-              <tr>
-                <th className="px-4 py-3">Rank</th>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Total km</th>
-                <th className="px-4 py-3">Current streak</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cream-dark bg-cream">
-              {overallWithStreak.map((row, idx) => {
-                const meta = rankMeta[idx];
-                const rankBadge = meta ? (
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold shadow-sm ${meta.bg} ${meta.text} ${meta.border}`}
-                  >
-                    {meta.label}
-                  </span>
-                ) : (
-                  <span className="text-xs font-semibold text-olive/50">
-                    #{idx + 1}
-                  </span>
-                );
 
-                return (
-                  <tr
-                    key={row.userId}
-                    className={
-                      meta
-                        ? meta.rowBg
-                        : "odd:bg-cream even:bg-sage-light/20"
-                    }
-                  >
-                    <td className="px-4 py-3">{rankBadge}</td>
-                    <td className="px-4 py-3 font-medium text-olive">
-                      <div className="flex items-center gap-2">
-                        <span className={idx === 0 ? "font-semibold" : ""}>
-                          {row.name}
-                        </span>
-                        <span className="text-xs text-olive/60">
-                          {row.email}
-                        </span>
+        {/* Mobile card layout */}
+        <div className="space-y-3">
+          {overallWithStreak.map((row, idx) => {
+            const meta = rankMeta[idx];
+
+            return (
+              <div
+                key={row.userId}
+                className={`rounded-xl p-3 ${
+                  meta ? meta.rowBg : "bg-sage-light/20"
+                } border border-cream-dark`}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Rank */}
+                  <div className="flex-shrink-0">
+                    {meta ? (
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${meta.bg} ${meta.border} border`}>
+                        <Icon name={meta.icon} className={`text-xl ${meta.iconColor}`} />
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-olive">
-                      {Number(row.totalKm).toFixed(1)} km
-                    </td>
-                    <td className="px-4 py-3 text-olive">{row.streak} week(s)</td>
-                  </tr>
-                );
-              })}
-              {overallWithStreak.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-4 py-4 text-center text-olive/60"
-                  >
-                    Stats will appear once results are logged.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cream-dark text-olive/60 font-semibold">
+                        {idx + 1}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User info */}
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-medium text-olive truncate ${idx === 0 ? "font-semibold" : ""}`}>
+                      {row.name}
+                    </p>
+                    <p className="text-xs text-olive/60 truncate">{row.email}</p>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-semibold text-olive">{Number(row.totalKm).toFixed(1)} km</p>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-sage-dark">
+                      <Icon name="local_fire_department" className="text-sm text-orange-500" />
+                      {row.streak} week{row.streak !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {overallWithStreak.length === 0 && (
+            <div className="py-8 text-center text-olive/60">
+              Stats will appear once results are logged.
+            </div>
+          )}
         </div>
       </div>
     </div>
