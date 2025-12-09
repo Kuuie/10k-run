@@ -13,6 +13,7 @@ import {
 } from "@/lib/week";
 import { getDailyQuote } from "@/lib/quotes";
 import { deleteActivityAction } from "@/app/actions";
+import { InstallPrompt } from "@/components/install-prompt";
 
 // Material Icon component
 const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
@@ -318,6 +319,9 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Install App Prompt */}
+      <InstallPrompt className="animate-slide-up delay-5" />
     </div>
   );
 }
