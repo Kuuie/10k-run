@@ -1,21 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <!-- Background with rounded corners -->
   <rect width="512" height="512" rx="110" fill="#84a98c"/>
-
-  <!-- Running figure silhouette -->
-  <g transform="translate(256, 185)">
-    <!-- Head -->
-    <circle cx="0" cy="-75" r="38" fill="white"/>
-    <!-- Body -->
-    <path d="M0,-37 L0,55" stroke="white" stroke-width="28" stroke-linecap="round"/>
-    <!-- Arms running pose -->
-    <path d="M0,0 L-60,-48" stroke="white" stroke-width="22" stroke-linecap="round"/>
-    <path d="M0,0 L55,32" stroke="white" stroke-width="22" stroke-linecap="round"/>
-    <!-- Legs running pose -->
-    <path d="M0,55 L-48,130" stroke="white" stroke-width="24" stroke-linecap="round"/>
-    <path d="M0,55 L60,115" stroke="white" stroke-width="24" stroke-linecap="round"/>
-  </g>
-
-  <!-- 10K text at bottom -->
-  <text x="256" y="440" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="800" fill="white" text-anchor="middle">10K</text>
+  <path d="M85 180 L85 350 L122 350 L122 180 L85 180 M85 145 L122 180 L85 180 Z" fill="white"/>
+  <ellipse cx="213" cy="256" rx="58" ry="96" fill="none" stroke="white" stroke-width="32"/>
+  <path d="M315 350 L315 145 L352 145 L352 235 L416 145 L463 145 L395 240 L470 350 L423 350 L363 262 L352 278 L352 350 Z" fill="white"/>
 </svg>
