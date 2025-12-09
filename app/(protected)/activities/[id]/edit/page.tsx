@@ -37,8 +37,8 @@ export default async function EditActivityPage({
   if (!activity) {
     return (
       <div className="max-w-2xl animate-slide-up">
-        <h1 className="text-2xl font-semibold">Activity not found</h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold text-olive">Activity not found</h1>
+        <p className="mt-2 text-sm text-olive/70">
           Either this activity does not exist or you do not have access.
         </p>
       </div>
@@ -51,17 +51,17 @@ export default async function EditActivityPage({
 
   return (
     <div className="max-w-2xl animate-slide-up">
-      <h1 className="text-2xl font-semibold">Edit activity</h1>
+      <h1 className="text-2xl font-semibold text-olive">Edit activity</h1>
       <form
         action={updateAction}
-        className="mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="mt-6 space-y-4 rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1"
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-medium text-olive">
             Activity type
             <select
               name="activity_type"
-              className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+              className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
               defaultValue={activityData?.activity_type ?? "run"}
             >
               <option value="run">Run</option>
@@ -69,20 +69,20 @@ export default async function EditActivityPage({
               <option value="jog">Jog</option>
             </select>
           </label>
-          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-medium text-olive">
             Date
             <input
               name="activity_date"
               type="date"
               defaultValue={activityData?.activity_date ?? todayLocalIso()}
               max={todayLocalIso()}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+              className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
               required
             />
           </label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-medium text-olive">
             Distance (km)
             <input
               name="distance_km"
@@ -91,10 +91,10 @@ export default async function EditActivityPage({
               step="0.1"
               required
               defaultValue={activityData?.distance_km ?? 0}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+              className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
             />
           </label>
-          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+          <label className="flex flex-col gap-2 text-sm font-medium text-olive">
             Duration (minutes)
             <input
               name="duration_minutes"
@@ -102,33 +102,33 @@ export default async function EditActivityPage({
               min="0"
               step="1"
               defaultValue={activityData?.duration_minutes ?? undefined}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+              className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
             />
           </label>
         </div>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-olive">
           Proof URL
           <input
             name="proof_url"
             type="url"
             defaultValue={activityData?.proof_url ?? undefined}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+            className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
           />
         </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-olive">
           Screenshot URL
           <input
             name="screenshot_url"
             type="url"
             defaultValue={activityData?.screenshot_url ?? undefined}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+            className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-olive/60">
             TODO: add OCR to parse distance from uploaded screenshots.
           </p>
         </label>
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-olive/60">
             Week start: {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][challenge.week_start_day]} • Target:{" "}
             {challenge.weekly_distance_target_km} km
           </p>

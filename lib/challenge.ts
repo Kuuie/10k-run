@@ -173,3 +173,31 @@ export const redirectIfInactive = (profile: UserProfile | null) => {
     redirect("/?inactive=1");
   }
 };
+
+export const getTeamWeeklyProgress = async (
+  supabase: SupabaseClient<Database>,
+  challenge: ChallengesRow
+) => {
+  const week = getWeekRange(new Date(), challenge.week_start_day);
+  const startIso = week.start.toISOString().slice(0, 10);
+  const endIso = week.end.toISOString().slice(0, 10);
+
+  // Get all activities for this week
+  const { data, error } = await supabase
+    .from("activities")
+    .select("distance_km, user_id")
+    .eq("challenge_id", challenge.id)
+    .gte("activity_date", startIso)
+    .lte("activity_date", endIso);
+
+  if (error) {
+    console.error("Error fetching team progress:", error);
+    return { totalKm: 0, participantCount: 0 };
+  }
+
+  const rows = (data || []) as { distance_km: number; user_id: string }[];
+  const totalKm = rows.reduce((sum, a) => sum + Number(a.distance_km || 0), 0);
+  const participants = new Set(rows.map(a => a.user_id));
+
+  return { totalKm, participantCount: participants.size };
+};

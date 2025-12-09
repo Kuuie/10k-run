@@ -20,7 +20,7 @@ export const PendingButton = ({
       type="submit"
       disabled={pending}
       className={clsx(
-        "rounded-xl bg-indigo-600 px-5 py-2.5 text-white transition hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed",
+        "rounded-xl bg-sage px-5 py-2.5 text-white transition hover:bg-sage-dark disabled:opacity-60 disabled:cursor-not-allowed",
         className
       )}
     >

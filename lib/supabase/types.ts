@@ -117,6 +117,54 @@ export type ActivitiesRow = Database["public"]["Tables"]["activities"]["Row"];
 export type WeeklyResultsRow = Database["public"]["Tables"]["weekly_results"]["Row"];
 export type UserProfile = Database["public"]["Tables"]["users"]["Row"];
 
+// New feature types
+export type Badge = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: "achievement" | "milestone" | "streak";
+  threshold_value: number | null;
+  created_at: string;
+};
+
+export type UserBadge = {
+  id: string;
+  user_id: string;
+  badge_id: string;
+  earned_at: string;
+  badge?: Badge;
+};
+
+export type ActivityCheer = {
+  id: string;
+  activity_id: string;
+  user_id: string;
+  emoji: string | null;
+  comment: string | null;
+  created_at: string;
+  user?: { name: string | null; email: string };
+};
+
+export type ActivityPreset = {
+  id: string;
+  user_id: string;
+  name: string;
+  distance_km: number;
+  duration_minutes: number | null;
+  activity_type: "run" | "walk" | "jog";
+  created_at: string;
+};
+
+export type TeamGoal = {
+  id: string;
+  challenge_id: string;
+  week_start_date: string;
+  target_km: number;
+  created_at: string;
+};
+
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];
 

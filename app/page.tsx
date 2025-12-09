@@ -30,23 +30,23 @@ export default async function Home({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 rounded-3xl bg-white px-8 py-12 shadow-sm sm:px-12 sm:py-14 animate-fade-in">
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 rounded-3xl bg-cream px-8 py-12 shadow-sm ring-1 ring-olive/10 sm:px-12 sm:py-14 animate-fade-in">
         <div className="flex flex-col gap-4 animate-slide-up">
-          <span className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600 delay-1">
+          <span className="text-sm font-semibold uppercase tracking-[0.2em] text-sage-dark delay-1">
             Team Challenge
           </span>
-          <h1 className="text-3xl font-semibold leading-tight sm:text-4xl animate-slide-up delay-2">
+          <h1 className="text-3xl font-semibold leading-tight text-olive sm:text-4xl animate-slide-up delay-2">
             10K Weekly Movement Challenge
           </h1>
-          <p className="max-w-3xl text-lg text-slate-600 animate-slide-up delay-3">
+          <p className="max-w-3xl text-lg text-olive/70 animate-slide-up delay-3">
             Run, walk, or jog 10 km every week. Track your streaks, share proof,
             and stay accountable with your crew.
           </p>
           {session?.user && (
-            <div className="flex items-center gap-3 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700 animate-slide-up delay-4">
+            <div className="flex items-center gap-3 rounded-xl bg-sage-light px-4 py-3 text-sm text-olive animate-slide-up delay-4">
               Signed in. Head to your{" "}
-              <Link href="/dashboard" className="font-semibold text-indigo-600">
+              <Link href="/dashboard" className="font-semibold text-sage-dark">
                 dashboard
               </Link>
               .
@@ -64,7 +64,7 @@ export default async function Home({
           ].map((item) => (
             <div
               key={item}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700 shadow-sm"
+              className="rounded-2xl border border-cream-dark bg-cream px-4 py-4 text-sm text-olive shadow-sm"
             >
               ✅ {item}
             </div>

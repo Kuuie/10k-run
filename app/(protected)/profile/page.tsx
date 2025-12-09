@@ -9,33 +9,33 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <div>
-        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">
+      <div className="animate-slide-up">
+        <p className="text-sm uppercase tracking-[0.2em] text-sage-dark">
           Profile
         </p>
-        <h1 className="text-3xl font-semibold">Your details</h1>
-        <p className="text-slate-600">
+        <h1 className="text-3xl font-semibold text-olive">Your details</h1>
+        <p className="text-olive/70">
           Set the name shown across dashboard and leaderboard.
         </p>
       </div>
 
       <form
         action={updateProfileAction}
-        className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="space-y-4 rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1"
       >
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        <label className="flex flex-col gap-2 text-sm font-medium text-olive">
           Name
           <input
             name="name"
             defaultValue={profile.name ?? ""}
             placeholder="e.g. Andrew"
-            className="rounded-xl border border-slate-200 px-4 py-3 text-base"
+            className="rounded-xl border border-cream-dark bg-background px-4 py-3 text-base text-olive"
           />
         </label>
-        <div className="text-sm text-slate-500">Email: {profile.email}</div>
+        <div className="text-sm text-olive/60">Email: {profile.email}</div>
         <button
           type="submit"
-          className="rounded-xl bg-indigo-600 px-5 py-2 text-white transition hover:bg-indigo-500"
+          className="rounded-xl bg-sage px-5 py-2 text-white transition hover:bg-sage-dark"
         >
           Save profile
         </button>

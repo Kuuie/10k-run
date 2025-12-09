@@ -95,11 +95,31 @@ export const calculateStreak = (
     weeklyResults.map((w) => [w.week_start_date, w.met_target])
   );
 
+  // Start from current week and work backwards
   let cursor = todayRange.start;
+
+  // For the current week, check if they've met the target OR are still in progress
+  // (we give them credit for the current week if they've met it, skip if not yet met)
+  const currentWeekKey = formatDateLocal(cursor);
+  const currentWeekMet = weeksByStart.get(currentWeekKey);
+
+  // If current week is met, count it; if not met yet (undefined or false),
+  // start checking from previous week
+  if (currentWeekMet === true) {
+    streak = 1;
+    cursor = new Date(cursor);
+    cursor.setUTCDate(cursor.getUTCDate() - 7);
+  } else {
+    // Current week not yet complete, start from previous week
+    cursor = new Date(cursor);
+    cursor.setUTCDate(cursor.getUTCDate() - 7);
+  }
+
+  // Count consecutive past weeks where target was met
   while (cursor >= start) {
-    const key = cursor.toISOString().slice(0, 10);
+    const key = formatDateLocal(cursor);
     const met = weeksByStart.get(key);
-    if (!met) break;
+    if (met !== true) break; // Only count if explicitly true
     streak += 1;
     cursor = new Date(cursor);
     cursor.setUTCDate(cursor.getUTCDate() - 7);

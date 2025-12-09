@@ -1,69 +1,83 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from "react";
-import { clsx } from "clsx";
-import { SunIcon, MoonIcon } from "@/components/icons";
+import { useState, useEffect } from "react";
 
-const THEME_KEY = "theme-preference";
-type Theme = "light" | "dark";
-
-const setDocumentTheme = (theme: Theme) => {
-  if (typeof document === "undefined") return;
-  const root = document.documentElement;
-  const body = document.body;
-  if (theme === "dark") {
-    root.classList.add("dark");
-    body.classList.add("dark");
-    root.setAttribute("data-theme", "dark");
-  } else {
-    root.classList.remove("dark");
-    body.classList.remove("dark");
-    root.removeAttribute("data-theme");
-  }
-};
-
-export const ThemeToggle = () => {
-  const [theme, setTheme] = useState<Theme>("light");
+export function ThemeToggle() {
+  const [theme, setThemeState] = useState<"light" | "dark" | "system">("system");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored =
-      (typeof localStorage !== "undefined"
-        ? (localStorage.getItem(THEME_KEY) as Theme | null)
-        : null) ||
-      (window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light");
-    setTheme(stored);
-    setDocumentTheme(stored);
+    setMounted(true);
+    const stored = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
+    if (stored) {
+      setThemeState(stored);
+    }
   }, []);
 
-  const toggle = () => {
-    const next: Theme = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem(THEME_KEY, next);
+  useEffect(() => {
+    if (!mounted) return;
+
+    const root = document.documentElement;
+
+    const applyTheme = (isDark: boolean) => {
+      if (isDark) {
+        root.classList.add("dark");
+        setResolvedTheme("dark");
+      } else {
+        root.classList.remove("dark");
+        setResolvedTheme("light");
+      }
+    };
+
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyTheme(mediaQuery.matches);
+
+      const handler = (e: MediaQueryListEvent) => applyTheme(e.matches);
+      mediaQuery.addEventListener("change", handler);
+      return () => mediaQuery.removeEventListener("change", handler);
+    } else {
+      applyTheme(theme === "dark");
     }
-    setDocumentTheme(next);
+  }, [theme, mounted]);
+
+  const setTheme = (newTheme: "light" | "dark" | "system") => {
+    setThemeState(newTheme);
+    localStorage.setItem("theme", newTheme);
   };
+
+  const cycleTheme = () => {
+    // Cycle: system -> dark -> light -> system
+    if (theme === "system") setTheme("dark");
+    else if (theme === "dark") setTheme("light");
+    else setTheme("system");
+  };
+
+  // Don't render anything on server to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <button
+        className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-olive/70"
+        title="Theme"
+      >
+        <span className="material-icons-round text-lg">light_mode</span>
+        <span className="hidden text-xs sm:inline">Light</span>
+      </button>
+    );
+  }
+
+  const icon = resolvedTheme === "dark" ? "dark_mode" : "light_mode";
+  const label = theme === "system" ? "Auto" : theme === "dark" ? "Dark" : "Light";
 
   return (
     <button
-      type="button"
-      onClick={toggle}
-      className={clsx(
-        "flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100",
-        "dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
-      )}
+      onClick={cycleTheme}
+      className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-olive/70 transition hover:bg-sage-light/50 hover:text-olive"
+      title={`Theme: ${label}`}
     >
-      {theme === "dark" ? (
-        <>
-          <SunIcon className="h-4 w-4" /> Light
-        </>
-      ) : (
-        <>
-          <MoonIcon className="h-4 w-4" /> Dark
-        </>
-      )}
+      <span className="material-icons-round text-lg">{icon}</span>
+      <span className="hidden text-xs sm:inline">{label}</span>
     </button>
   );
-};
+}

@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+// Material Icon component
+const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
+  <span className={`material-icons-round ${className}`}>{name}</span>
+);
+
 type CoachStats = {
   totalKm: number;
   targetKm: number;
@@ -33,7 +38,7 @@ type Props = {
 };
 
 const INITIAL_COACH_LINE =
-  "Coach Kuro here! I’ll keep you hyped and honest—let’s crush this week.";
+  "Hey! I'm Coach Kuro. Ask me for tips, motivation, or just chat!";
 
 export function CoachChat({ stats }: Props) {
   const [messages, setMessages] = useState<Message[]>([
@@ -41,10 +46,6 @@ export function CoachChat({ stats }: Props) {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [collapsed, setCollapsed] = useState(true);
-  const [droppedImage, setDroppedImage] = useState<{ name: string; preview: string } | null>(null);
-  const [showMotivationVideo, setShowMotivationVideo] = useState(false);
-  const [promptMotivationVideo, setPromptMotivationVideo] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -70,7 +71,7 @@ export function CoachChat({ stats }: Props) {
     setMessages((prev) => [...prev, msg]);
   };
 
-  const handleCoachResponse = async (userText?: string, imageData?: string) => {
+  const handleCoachResponse = async (userText?: string) => {
     setLoading(true);
     try {
       const res = await fetch("/api/coach", {
@@ -80,7 +81,6 @@ export function CoachChat({ stats }: Props) {
           stats,
           history: recentApiHistory,
           userMessage: userText ?? "",
-          imageData,
         }),
       });
 
@@ -88,7 +88,7 @@ export function CoachChat({ stats }: Props) {
         const data = await res.json().catch(() => ({}));
         const errorMsg =
           data?.error ||
-          "You’ve hit your hype quota for now — try again later!";
+          "Coach is taking a breather — try again later!";
         addMessage({ role: "coach", content: errorMsg });
         return;
       }
@@ -99,14 +99,14 @@ export function CoachChat({ stats }: Props) {
       } else {
         addMessage({
           role: "coach",
-          content: "Staying quiet, but I’m still cheering you on!",
+          content: "Still cheering you on!",
         });
       }
     } catch (error) {
       console.error("Coach chat error", error);
       addMessage({
         role: "coach",
-        content: "I’m catching my breath—try again in a bit!",
+        content: "I'm catching my breath — try again in a bit!",
       });
     } finally {
       setLoading(false);
@@ -118,202 +118,95 @@ export function CoachChat({ stats }: Props) {
     if (!trimmed) return;
     setInput("");
     addMessage({ role: "user", content: trimmed });
-    if (/\bmotivat/i.test(trimmed)) {
-      setPromptMotivationVideo(true);
-      addMessage({
-        role: "coach",
-        content: "Want me to play today’s motivation video? I can pop it up.",
-      });
-    }
     await handleCoachResponse(trimmed);
   };
 
-  const handleWeeklyHype = async () => {
-    addMessage({ role: "coach", content: "Summoning hype..." });
-    await handleCoachResponse();
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!e.dataTransfer.files?.length) return;
-    const file = e.dataTransfer.files[0];
-    if (!file.type.startsWith("image/")) return;
-    const url = URL.createObjectURL(file);
-    setDroppedImage({ name: file.name, preview: url });
-    addMessage({
-      role: "coach",
-      content: "Got your screenshot—analyzing it for distance and time...",
-    });
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      await handleCoachResponse(undefined, base64);
-    };
-    reader.readAsDataURL(file);
+  const handleQuickHype = async () => {
+    addMessage({ role: "user", content: "Give me a pep talk!" });
+    await handleCoachResponse("Give me an encouraging pep talk to help me stay motivated!");
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-elevated">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Coach Chat</h2>
-          <p className="text-sm text-slate-500 dark:text-darkTheme-text-secondary">
-            Quick pep & tips — ask for a motivational video anytime.
-          </p>
+    <div className="flex h-full flex-col rounded-2xl bg-cream shadow-sm ring-1 ring-olive/10">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-cream-dark px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sage to-sage-dark">
+            <Icon name="psychology" className="text-xl text-white" />
+          </div>
+          <div>
+            <p className="font-semibold text-olive">Coach Kuro</p>
+            <p className="text-xs text-olive/60">AI-powered motivation</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:bg-darkTheme-card dark:text-darkTheme-text-primary dark:hover:bg-darkTheme-elevated"
-            onClick={() => setCollapsed((v) => !v)}
-          >
-            {collapsed ? "Expand" : "Collapse"}
-          </button>
-          <button
-            type="button"
-            className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
-            onClick={handleWeeklyHype}
-            disabled={loading}
-          >
-            Weekly Hype
-          </button>
-        </div>
+        <button
+          onClick={handleQuickHype}
+          disabled={loading}
+          className="flex items-center gap-1 rounded-full bg-sage-light px-3 py-1.5 text-sm font-medium text-sage-dark transition hover:bg-sage/30 disabled:opacity-50"
+        >
+          <Icon name="bolt" className="text-base" />
+          Hype me
+        </button>
       </div>
 
-      {collapsed ? (
-        <div className="mt-3 text-xs text-slate-500 dark:text-darkTheme-text-secondary">
-          Coach is chilling. Expand to chat.
-        </div>
-      ) : (
-        <>
+      {/* Messages */}
       <div
         ref={listRef}
-        className="mt-4 h-64 space-y-3 overflow-y-auto rounded-xl border border-slate-100 p-3 dark:border-darkTheme-border dark:bg-darkTheme-card"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
+        className="flex-1 space-y-3 overflow-y-auto p-4"
+        style={{ minHeight: "300px" }}
       >
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`max-w-[90%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-              msg.role === "coach"
-                ? "ml-0 mr-auto bg-indigo-50 text-indigo-900 dark:bg-darkTheme-elevated dark:text-darkTheme-text-primary"
-                : "ml-auto mr-0 bg-slate-100 text-slate-900 dark:bg-darkTheme-card dark:text-darkTheme-text-primary"
-            }`}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
-            {msg.content}
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                msg.role === "coach"
+                  ? "bg-sage-light text-olive"
+                  : "bg-sage text-white"
+              }`}
+            >
+              {msg.content}
+            </div>
           </div>
         ))}
         {loading && (
-          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-darkTheme-text-secondary">
-            <span className="h-3 w-3 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-            Coach is thinking...
+          <div className="flex items-center gap-2 text-sm text-olive/60">
+            <span className="flex gap-1">
+              <span className="h-2 w-2 animate-bounce rounded-full bg-sage" style={{ animationDelay: "0ms" }} />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-sage" style={{ animationDelay: "150ms" }} />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-sage" style={{ animationDelay: "300ms" }} />
+            </span>
+            Coach is typing...
           </div>
         )}
       </div>
 
-      {droppedImage && (
-        <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 text-sm text-indigo-900 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
-          <div className="flex items-center justify-between">
-            <div className="font-semibold text-xs uppercase tracking-wide text-indigo-700 dark:text-darkTheme-text-secondary">
-              Screenshot detected
-            </div>
-            <button
-              type="button"
-              className="text-xs text-indigo-600 hover:underline dark:text-darkTheme-text-secondary"
-              onClick={() => {
-                setDroppedImage(null);
-              }}
-            >
-              Clear
-            </button>
-          </div>
-          <div className="mt-2 flex items-center gap-3">
-            <img
-              src={droppedImage.preview}
-              alt={droppedImage.name}
-              className="h-16 w-16 rounded-lg object-cover ring-1 ring-indigo-200 dark:ring-darkTheme-border"
-            />
-            <div className="flex-1 space-y-1 text-xs text-slate-600 dark:text-darkTheme-text-secondary">
-              Coach is analyzing the screenshot for distance/time and will ask to confirm adding it.
-            </div>
-          </div>
+      {/* Input */}
+      <div className="border-t border-cream-dark p-3">
+        <div className="flex items-center gap-2">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Ask for tips, motivation..."
+            className="flex-1 rounded-full bg-sage-light/50 px-4 py-2.5 text-sm text-olive outline-none placeholder:text-olive/50 focus:ring-2 focus:ring-sage/30"
+          />
+          <button
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-sage text-white transition hover:bg-sage-dark disabled:opacity-50"
+          >
+            <Icon name="send" className="text-lg" />
+          </button>
         </div>
-      )}
-
-      {promptMotivationVideo && (
-        <div className="mt-3 flex items-center justify-between rounded-xl border border-indigo-100 bg-indigo-50/70 p-3 text-sm text-indigo-900 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
-          <div className="font-semibold text-sm">Play today’s motivational video?</div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-500 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
-              onClick={() => {
-                setPromptMotivationVideo(false);
-                setShowMotivationVideo(true);
-              }}
-            >
-              Yes, play it
-            </button>
-            <button
-              type="button"
-              className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 dark:bg-darkTheme-border dark:text-darkTheme-text-primary"
-              onClick={() => setPromptMotivationVideo(false)}
-            >
-              Not now
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-4 flex items-center gap-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
-          placeholder="Ask your coach for a pep talk..."
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-text-primary dark:focus:ring-darkTheme-accent-primary/30"
-        />
-        <button
-          type="button"
-          className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
-          onClick={handleSend}
-          disabled={loading}
-        >
-          Send
-        </button>
       </div>
-        </>
-      )}
-
-      {showMotivationVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="relative w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-darkTheme-elevated">
-            <button
-              type="button"
-              className="absolute right-3 top-3 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-darkTheme-card dark:text-darkTheme-text-primary dark:hover:bg-darkTheme-border"
-              onClick={() => setShowMotivationVideo(false)}
-            >
-              Close
-            </button>
-            <div className="w-[92vw] max-w-6xl max-h-[85vh] bg-black">
-              <iframe
-                className="h-[70vh] max-h-[85vh] w-full"
-                src="https://www.youtube.com/embed/Vr6yKYnXpyU"
-                title="Motivation"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

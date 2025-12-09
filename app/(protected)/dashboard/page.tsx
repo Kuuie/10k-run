@@ -4,26 +4,74 @@ import {
   getActiveChallenge,
   getUserActivities,
   getUserWeeklyResults,
+  getTeamWeeklyProgress,
 } from "@/lib/challenge";
 import {
-  DEFAULT_TZ,
   calculateStreak,
   formatDateLocal,
-  formatDateLocalTz,
   getWeekRange,
 } from "@/lib/week";
+import { getDailyQuote } from "@/lib/quotes";
 import { deleteActivityAction } from "@/app/actions";
-import { CheckIcon, XIcon } from "@/components/icons";
-import { CoachChat } from "@/components/coach-chat";
 
-const ProgressBar = ({ value, target }: { value: number; target: number }) => {
-  const pct = Math.min(100, Math.round((value / target) * 100));
+// Material Icon component
+const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
+  <span className={`material-icons-round ${className}`}>{name}</span>
+);
+
+// Circular Progress Ring
+const ProgressRing = ({
+  progress,
+  total,
+  target,
+}: {
+  progress: number;
+  total: number;
+  target: number;
+}) => {
+  const percentage = Math.min(100, Math.round((total / target) * 100));
+  const radius = 70;
+  const strokeWidth = 10;
+  const normalizedRadius = radius - strokeWidth / 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
   return (
-    <div className="w-full rounded-full bg-slate-100 dark:bg-darkTheme-border">
-      <div
-        className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 transition-[width] dark:bg-darkTheme-accent-progress dark:from-darkTheme-accent-progress dark:to-darkTheme-accent-progress"
-        style={{ width: `${pct}%` }}
-      />
+    <div className="relative flex items-center justify-center">
+      <svg height={radius * 2} width={radius * 2} className="-rotate-90">
+        {/* Background circle */}
+        <circle
+          stroke="#e7e5e4"
+          fill="transparent"
+          strokeWidth={strokeWidth}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        {/* Progress circle */}
+        <circle
+          stroke="url(#gradient)"
+          fill="transparent"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference + " " + circumference}
+          style={{ strokeDashoffset }}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+          className="transition-all duration-700 ease-out"
+        />
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#84a98c" />
+            <stop offset="100%" stopColor="#52796f" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="text-3xl font-bold text-stone-900">{total.toFixed(1)}</span>
+        <span className="text-sm text-stone-500">of {target} km</span>
+      </div>
     </div>
   );
 };
@@ -40,28 +88,27 @@ export default async function DashboardPage() {
     user?.user_metadata?.name ||
     profile?.email?.split("@")[0] ||
     user?.email?.split("@")[0] ||
-    "You";
+    "there";
+
   const challenge = await getActiveChallenge(supabase);
-  const weeklyResults = await getUserWeeklyResults(
-    supabase,
-    userId,
-    challenge.id,
-    12
-  );
-  const activities = await getUserActivities(
-    supabase,
-    userId,
-    challenge.id,
-    8
-  );
+  const [weeklyResults, activities, teamProgress] = await Promise.all([
+    getUserWeeklyResults(supabase, userId, challenge.id, 12),
+    getUserActivities(supabase, userId, challenge.id, 5),
+    getTeamWeeklyProgress(supabase, challenge),
+  ]);
+  const dailyQuote = getDailyQuote();
 
   const now = new Date();
   const week = getWeekRange(now, challenge.week_start_day);
   const thisWeek = weeklyResults.find(
     (w) => w.week_start_date === formatDateLocal(week.start)
   );
-  const totalKm = thisWeek?.total_distance_km ?? 0;
+  const totalKm = Number(thisWeek?.total_distance_km ?? 0);
   const metTarget = thisWeek?.met_target ?? false;
+  const targetKm = Number(challenge.weekly_distance_target_km);
+  const toGo = Math.max(0, targetKm - totalKm);
+  const progressPct = Math.min(100, Math.round((totalKm / targetKm) * 100));
+
   const streak = calculateStreak(
     weeklyResults.map((w) => ({
       week_start_date: w.week_start_date,
@@ -71,262 +118,205 @@ export default async function DashboardPage() {
     challenge.week_start_day
   );
 
-  const toGo = Math.max(0, Number(challenge.weekly_distance_target_km) - totalKm);
-  const coachStats = {
-    totalKm: Number(totalKm),
-    targetKm: Number(challenge.weekly_distance_target_km),
-    toGo: Math.max(0, Number(challenge.weekly_distance_target_km) - Number(totalKm)),
-    streak,
-    weekStart: formatDateLocal(week.start),
-    weekEnd: formatDateLocal(week.end),
-    activities: activities.map((a) => ({
-      activity_date: a.activity_date,
-      distance_km: Number(a.distance_km),
-      duration_minutes: a.duration_minutes ? Number(a.duration_minutes) : null,
-      activity_type: a.activity_type,
-    })),
-    userEmail: user?.email || null,
-  };
-  const today = now;
-  const dayPills = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(week.start);
-    d.setDate(d.getDate() + i);
-    const iso = formatDateLocalTz(d, DEFAULT_TZ);
-    return {
-      iso,
-      label: d.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      }),
-      isToday: iso === formatDateLocalTz(today, DEFAULT_TZ),
-    };
-  });
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 dark:text-darkTheme-accent-primary animate-slide-up">
-          Hello, {displayName}
-        </p>
-        <h1 className="text-3xl font-semibold animate-slide-up delay-1">Dashboard</h1>
-        <p className="text-slate-600 dark:text-darkTheme-text-secondary animate-slide-up delay-2">
-          Track your weekly 10 km progress, streaks, and recent activities.
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Hero Card with Progress Ring */}
+      <div className="animate-scale-in rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover">
+        <div className="flex flex-col items-center text-center">
+          {/* Greeting */}
+          <p className="text-sm text-olive/70">Hey {displayName.split(" ")[0]}!</p>
+          <h1 className="mt-1 text-xl font-semibold text-olive">
+            {metTarget ? "Goal reached! 🎉" : `${toGo.toFixed(1)} km to go`}
+          </h1>
 
-      <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 px-5 py-4 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:from-darkTheme-elevated dark:via-darkTheme-elevated dark:to-darkTheme-elevated">
-        <div className="flex flex-col gap-1">
-          <div className="inline-flex items-center gap-2">
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning">
-              Team Update: 10Ks conquered!
-            </span>
+          {/* Progress Ring */}
+          <div className="my-6">
+            <ProgressRing progress={progressPct} total={totalKm} target={targetKm} />
           </div>
-          <p className="text-sm font-semibold text-amber-900 dark:text-darkTheme-text-primary">
-            Massive shoutout to everyone who crossed the finish line — absolute weapons. 💪
+
+          {/* Week dates */}
+          <p className="text-sm text-olive/60">
+            {formatDateLocal(week.start)} – {formatDateLocal(week.end)}
           </p>
-          <p className="text-sm text-amber-800 dark:text-darkTheme-text-secondary">
-            And to our one runner who didn’t… don’t worry, every great story has a plot twist. Next week, we believe in your redemption run!
-          </p>
+
+          {/* Add Activity Button */}
+          <Link
+            href="/activities/new"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-sage px-6 py-3 text-sm font-medium text-white shadow-lg shadow-sage/25 transition hover:bg-sage-dark active:scale-95"
+          >
+            <Icon name="add" className="text-xl" />
+            Log Activity
+          </Link>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-4 text-sm text-indigo-900 shadow-sm animate-slide-up delay-2 dark:border-darkTheme-border dark:bg-darkTheme-elevated dark:text-darkTheme-text-primary">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-darkTheme-card dark:text-darkTheme-text-primary">
-              This week
-            </span>
-            <span className="font-semibold">
-              {formatDateLocal(week.start)} → {formatDateLocal(week.end)}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {dayPills.map((day) => (
-              <span
-                key={day.iso}
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  day.isToday
-                    ? "bg-indigo-600 text-white dark:bg-darkTheme-accent-primary"
-                    : "bg-white text-indigo-700 dark:bg-darkTheme-card dark:text-darkTheme-text-secondary"
-                }`}
-              >
-                {day.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3 animate-slide-up delay-3">
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3 dark:border-darkTheme-border">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">This Week</p>
-              <p className="text-2xl font-semibold">
-                {totalKm.toFixed(1)} km / {challenge.weekly_distance_target_km} km
-              </p>
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="animate-slide-up delay-1 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+              <Icon name="local_fire_department" className="text-xl text-sage-dark" />
             </div>
-            <span
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold border ${
-                metTarget
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-success dark:border-darkTheme-border"
-                  : "bg-amber-100 text-amber-700 dark:bg-darkTheme-card dark:text-darkTheme-accent-warning dark:border-darkTheme-border"
-              }`}
-            >
-              {metTarget ? (
-                <>
-                  <CheckIcon className="h-4 w-4" /> Goal reached
-                </>
-              ) : (
-                <>
-                  <XIcon className="h-4 w-4" /> {toGo.toFixed(1)} km to go
-                </>
-              )}
-            </span>
+            <div>
+              <p className="text-2xl font-bold text-olive">{streak}</p>
+              <p className="text-xs text-olive/70">Week streak</p>
+            </div>
           </div>
-          <div className="mt-4">
-            <ProgressBar
-              value={Number(totalKm)}
-              target={Number(challenge.weekly_distance_target_km)}
-            />
+        </div>
+
+        <div className="animate-slide-up delay-2 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+              <Icon name="directions_run" className="text-xl text-sage-dark" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-olive">{activities.length}</p>
+              <p className="text-xs text-olive/70">Activities</p>
+            </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
-            <span>
-              Week window: {formatDateLocal(week.start)} → {formatDateLocal(week.end)}
-            </span>
+        </div>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="animate-slide-up delay-3 rounded-2xl bg-cream shadow-sm ring-1 ring-olive/10 card-hover">
+        <div className="flex items-center justify-between border-b border-cream-dark px-4 py-3">
+          <h2 className="font-semibold text-olive">Recent Activities</h2>
+          <Link
+            href="/activities/new"
+            className="flex items-center gap-1 text-sm font-medium text-sage-dark"
+          >
+            <Icon name="add" className="text-lg" />
+            Add
+          </Link>
+        </div>
+
+        {activities.length === 0 ? (
+          <div className="px-4 py-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sage-light">
+              <Icon name="directions_run" className="text-2xl text-sage-dark" />
+            </div>
+            <p className="mt-3 text-sm text-olive/70">No activities yet</p>
             <Link
               href="/activities/new"
-              className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-500 dark:bg-darkTheme-accent-primary dark:hover:bg-darkTheme-accent-primaryHover"
+              className="mt-2 inline-block text-sm font-medium text-sage-dark"
             >
-              Add activity
+              Log your first activity
             </Link>
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4 dark:border-darkTheme-border">
-          <p className="text-sm font-medium text-slate-700 dark:text-darkTheme-text-primary">Current streak</p>
-          <p className="mt-2 text-3xl font-semibold">{streak} week(s)</p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-darkTheme-text-secondary">
-            Consecutive weeks hitting {challenge.weekly_distance_target_km} km
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-elevated">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Recent weeks</h2>
-            <span className="flex items-center gap-2 text-xs text-slate-500 dark:text-darkTheme-text-secondary">
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-success">
-                <CheckIcon className="h-3.5 w-3.5" /> Met
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-rose-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-error">
-                <XIcon className="h-3.5 w-3.5" /> Missed
-              </span>
-            </span>
-          </div>
-          <div className="mt-4 space-y-3">
-            {weeklyResults.slice(0, 8).map((weekResult) => (
-              <div
-                key={weekResult.week_start_date}
-                className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-darkTheme-border dark:bg-darkTheme-card"
-              >
-                <div>
-                  <p className="text-sm font-medium text-slate-800 dark:text-darkTheme-text-primary">
-                    Week of {weekResult.week_start_date}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
-                    Total: {Number(weekResult.total_distance_km).toFixed(1)} km
-                  </p>
-                </div>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold ${
-                    weekResult.met_target
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-success"
-                      : "border-rose-200 bg-rose-50 text-rose-700 dark:border-darkTheme-border dark:bg-darkTheme-card dark:text-darkTheme-accent-error"
-                  }`}
-                >
-                  {weekResult.met_target ? (
-                    <>
-                      <CheckIcon className="h-3.5 w-3.5" /> Met
-                    </>
-                  ) : (
-                    <>
-                      <XIcon className="h-3.5 w-3.5" /> Missed
-                    </>
-                  )}
-                </span>
-              </div>
-            ))}
-            {weeklyResults.length === 0 && (
-              <p className="text-sm text-slate-600 dark:text-darkTheme-text-secondary">
-                Log your first activity to start your streak.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-elevated">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Recent activities</h2>
-            <Link href="/activities/new" className="text-sm text-indigo-600 dark:text-darkTheme-accent-primary">
-              Add
-            </Link>
-          </div>
-          <div className="mt-4 space-y-3">
+        ) : (
+          <div className="divide-y divide-cream-dark">
             {activities.map((activity) => {
               const deleteAction = async () => {
                 "use server";
                 await deleteActivityAction(activity.id);
               };
+
+              const iconName =
+                activity.activity_type === "run"
+                  ? "directions_run"
+                  : activity.activity_type === "walk"
+                  ? "directions_walk"
+                  : "sprint";
+
               return (
-                <div
-                  key={activity.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 dark:border-darkTheme-border dark:bg-darkTheme-card"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-darkTheme-text-primary">
-                      {activity.activity_type.toUpperCase()} •{" "}
-                      {Number(activity.distance_km).toFixed(1)} km
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-darkTheme-text-secondary">
-                      {activity.activity_date}
-                      {activity.duration_minutes
-                        ? ` • ${activity.duration_minutes} min`
-                        : ""}
-                    </p>
+                <div key={activity.id} className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+                      <Icon name={iconName} className="text-xl text-sage-dark" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-olive">
+                        {Number(activity.distance_km).toFixed(1)} km
+                        <span className="ml-1 font-normal text-olive/70">
+                          {activity.activity_type}
+                        </span>
+                      </p>
+                      <p className="text-sm text-olive/60">
+                        {activity.activity_date}
+                        {activity.duration_minutes && ` · ${activity.duration_minutes} min`}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center">
                     <Link
                       href={`/activities/${activity.id}/edit`}
-                      className="text-indigo-600 dark:text-darkTheme-accent-primary"
+                      className="rounded-full p-2 text-olive/50 hover:bg-sage-light hover:text-sage-dark"
                     >
-                      Edit
+                      <Icon name="edit" className="text-lg" />
                     </Link>
                     <form action={deleteAction}>
                       <button
                         type="submit"
-                        className="text-red-500 dark:text-darkTheme-accent-error"
+                        className="rounded-full p-2 text-olive/50 hover:bg-red-50 hover:text-red-500"
                       >
-                        Delete
+                        <Icon name="delete" className="text-lg" />
                       </button>
                     </form>
                   </div>
                 </div>
               );
             })}
-            {activities.length === 0 && (
-              <p className="text-sm text-slate-600 dark:text-[#9CA3AF]">
-                No activities yet. Start with a walk, jog, or run.
-              </p>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1">
-        <CoachChat stats={coachStats} />
+      {/* Weekly History */}
+      {weeklyResults.length > 0 && (
+        <div className="animate-slide-up delay-4 rounded-2xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
+          <h2 className="font-semibold text-olive">History</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {weeklyResults.slice(0, 8).map((result) => (
+              <div
+                key={result.week_start_date}
+                className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm ${
+                  result.met_target
+                    ? "bg-sage-light text-sage-dark"
+                    : "bg-cream-dark text-olive/60"
+                }`}
+              >
+                {result.met_target && <Icon name="check" className="text-sm" />}
+                <span className="font-medium">{result.week_start_date.slice(5)}</span>
+                <span>{Number(result.total_distance_km).toFixed(1)}km</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Team Progress */}
+      {teamProgress.participantCount > 0 && (
+        <div className="animate-slide-up delay-5 rounded-2xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
+          <h2 className="flex items-center gap-2 font-semibold text-olive">
+            <Icon name="groups" className="text-lg text-sage-dark" />
+            Team This Week
+          </h2>
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-olive">{teamProgress.totalKm.toFixed(1)} km</p>
+              <p className="text-xs text-olive/70">{teamProgress.participantCount} active participant{teamProgress.participantCount !== 1 ? 's' : ''}</p>
+            </div>
+            <Link
+              href="/leaderboard"
+              className="flex items-center gap-1 rounded-lg bg-sage-light px-3 py-1.5 text-sm font-medium text-sage-dark"
+            >
+              <Icon name="leaderboard" className="text-base" />
+              View board
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Motivation */}
+      <div className="animate-slide-up delay-5 rounded-2xl bg-gradient-to-br from-sage to-sage-dark p-5 text-white shadow-lg">
+        <div className="flex items-start gap-3">
+          <Icon name="format_quote" className="text-2xl opacity-50" />
+          <div>
+            <p className="text-sm font-medium italic leading-relaxed">
+              "{dailyQuote.quote.length > 150 ? dailyQuote.quote.slice(0, 150) + '...' : dailyQuote.quote}"
+            </p>
+            <p className="mt-2 text-xs opacity-75">— {dailyQuote.author}</p>
+          </div>
+        </div>
       </div>
     </div>
   );

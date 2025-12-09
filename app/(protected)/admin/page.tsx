@@ -60,19 +60,19 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8">
       <div className="animate-slide-up">
-        <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">
+        <p className="text-sm uppercase tracking-[0.2em] text-sage-dark">
           Admin
         </p>
-        <h1 className="text-3xl font-semibold">Control panel</h1>
-        <p className="text-slate-600">
+        <h1 className="text-3xl font-semibold text-olive">Control panel</h1>
+        <p className="text-olive/70">
           Manage users, invites, and weekly overrides.
         </p>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-1">
+      <section className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Invite user</h2>
-          <span className="text-xs text-slate-500">
+          <h2 className="text-lg font-semibold text-olive">Invite user</h2>
+          <span className="text-xs text-olive/60">
             Sends Supabase magic link invite
           </span>
         </div>
@@ -85,31 +85,31 @@ export default async function AdminPage() {
             name="email"
             required
             placeholder="user@company.com"
-            className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+            className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
           />
           <input
             type="text"
             name="name"
             placeholder="Name (optional)"
-            className="rounded-xl border border-slate-200 px-3 py-2 text-base"
+            className="rounded-xl border border-cream-dark bg-background px-3 py-2 text-base text-olive"
           />
           <button
             type="submit"
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-500"
+            className="rounded-xl bg-sage px-4 py-2 text-white transition hover:bg-sage-dark"
           >
             Send invite
           </button>
         </form>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-2">
+      <section className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Users</h2>
-          <span className="text-xs text-slate-500">Toggle active/inactive</span>
+          <h2 className="text-lg font-semibold text-olive">Users</h2>
+          <span className="text-xs text-olive/60">Toggle active/inactive</span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
-          <table className="min-w-full divide-y divide-slate-100 text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="mt-4 overflow-hidden rounded-xl border border-cream-dark">
+          <table className="min-w-full divide-y divide-cream-dark text-sm">
+            <thead className="bg-sage-light/50 text-left text-xs font-semibold uppercase tracking-wide text-olive">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
@@ -118,7 +118,7 @@ export default async function AdminPage() {
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-cream-dark bg-cream">
               {(users ?? []).map((u) => {
                 const userRow = u as any;
                 const toggleAction = async () => {
@@ -127,17 +127,17 @@ export default async function AdminPage() {
                 };
                 return (
                   <tr key={userRow.id}>
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                    <td className="px-4 py-3 font-medium text-olive">
                       {userRow.name || "—"}
                     </td>
-                    <td className="px-4 py-3">{userRow.email}</td>
-                    <td className="px-4 py-3">{userRow.role}</td>
+                    <td className="px-4 py-3 text-olive">{userRow.email}</td>
+                    <td className="px-4 py-3 text-olive">{userRow.role}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${
                           userRow.active
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-100 text-slate-600"
+                            ? "bg-sage-light text-sage-dark"
+                            : "bg-cream-dark text-olive/60"
                         }`}
                       >
                         {userRow.active ? "Active" : "Inactive"}
@@ -147,7 +147,7 @@ export default async function AdminPage() {
                       <form action={toggleAction}>
                         <button
                           type="submit"
-                          className="text-xs font-semibold text-indigo-600"
+                          className="text-xs font-semibold text-sage-dark"
                         >
                           Set {userRow.active ? "inactive" : "active"}
                         </button>
@@ -160,7 +160,7 @@ export default async function AdminPage() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-4 text-center text-slate-600"
+                    className="px-4 py-4 text-center text-olive/60"
                   >
                     No users yet.
                   </td>
@@ -171,14 +171,14 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-4">
+      <section className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent activities</h2>
-          <span className="text-xs text-slate-500">Latest 50 entries</span>
+          <h2 className="text-lg font-semibold text-olive">Recent activities</h2>
+          <span className="text-xs text-olive/60">Latest 50 entries</span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
-          <table className="min-w-full divide-y divide-slate-100 text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="mt-4 overflow-hidden rounded-xl border border-cream-dark">
+          <table className="min-w-full divide-y divide-cream-dark text-sm">
+            <thead className="bg-sage-light/50 text-left text-xs font-semibold uppercase tracking-wide text-olive">
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Date</th>
@@ -188,31 +188,31 @@ export default async function AdminPage() {
                 <th className="px-4 py-3">Logged at</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-cream-dark bg-cream">
               {recentActivities.map((act) => {
                 const a = act as any;
                 const user = a.users;
                 return (
                   <tr key={a.id}>
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                    <td className="px-4 py-3 font-medium text-olive">
                       <div className="flex flex-col">
                         <span>{user?.name || user?.email || "User"}</span>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-olive/60">
                           {user?.email || "—"}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{a.activity_date}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-olive">{a.activity_date}</td>
+                    <td className="px-4 py-3 text-olive">
                       {Number(a.distance_km ?? 0).toFixed(1)} km
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-olive">
                       {a.duration_minutes ? `${a.duration_minutes} min` : "—"}
                     </td>
-                    <td className="px-4 py-3 uppercase text-slate-700">
+                    <td className="px-4 py-3 uppercase text-olive">
                       {a.activity_type || "run"}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
+                    <td className="px-4 py-3 text-olive/60 text-xs">
                       {a.created_at?.replace("T", " ").replace("Z", "")}
                     </td>
                   </tr>
@@ -222,7 +222,7 @@ export default async function AdminPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-4 text-center text-slate-600"
+                    className="px-4 py-4 text-center text-olive/60"
                   >
                     No activities yet.
                   </td>
@@ -233,16 +233,16 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-slide-up delay-3">
+      <section className="rounded-2xl border border-cream-dark bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Weekly overrides</h2>
-          <span className="text-xs text-slate-500">
+          <h2 className="text-lg font-semibold text-olive">Weekly overrides</h2>
+          <span className="text-xs text-olive/60">
             Flip met_target with admin override
           </span>
         </div>
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
-          <table className="min-w-full divide-y divide-slate-100 text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="mt-4 overflow-hidden rounded-xl border border-cream-dark">
+          <table className="min-w-full divide-y divide-cream-dark text-sm">
+            <thead className="bg-sage-light/50 text-left text-xs font-semibold uppercase tracking-wide text-olive">
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Week</th>
@@ -251,7 +251,7 @@ export default async function AdminPage() {
                 <th className="px-4 py-3">Override</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-cream-dark bg-cream">
               {(weeklyResults ?? []).map((wr) => {
                 const wrRow = wr as any;
                 const setTrue = async () => {
@@ -265,19 +265,19 @@ export default async function AdminPage() {
                 const user = wrRow.users;
                 return (
                   <tr key={wrRow.id}>
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                    <td className="px-4 py-3 font-medium text-olive">
                       {user?.name || user?.email || "User"}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-olive">
                       {wrRow.week_start_date} → {wrRow.week_end_date}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-olive">
                       {Number(wrRow.total_distance_km).toFixed(1)} km
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-olive">
                       {wrRow.met_target ? "✅" : "❌"}
                       {wrRow.overridden_by_admin && (
-                        <span className="ml-2 text-xs text-amber-600">
+                        <span className="ml-2 text-xs text-sage-dark">
                           (overridden)
                         </span>
                       )}
@@ -285,12 +285,12 @@ export default async function AdminPage() {
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <form action={setTrue}>
-                          <button className="rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                          <button className="rounded-lg bg-sage-light px-3 py-1 text-xs font-semibold text-sage-dark">
                             Set ✅
                           </button>
                         </form>
                         <form action={setFalse}>
-                          <button className="rounded-lg bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                          <button className="rounded-lg bg-cream-dark px-3 py-1 text-xs font-semibold text-olive">
                             Set ❌
                           </button>
                         </form>
@@ -303,7 +303,7 @@ export default async function AdminPage() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-4 text-center text-slate-600"
+                    className="px-4 py-4 text-center text-olive/60"
                   >
                     No weekly results yet.
                   </td>
