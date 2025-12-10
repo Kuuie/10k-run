@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   inviteUserAction,
@@ -163,14 +164,22 @@ export default async function AdminPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <form action={toggleAction}>
-                        <button
-                          type="submit"
-                          className="text-xs font-semibold text-sage-dark"
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/dashboard?view_as=${userRow.id}`}
+                          className="text-xs font-semibold text-purple-600 hover:text-purple-800"
                         >
-                          Set {userRow.active ? "inactive" : "active"}
-                        </button>
-                      </form>
+                          View
+                        </Link>
+                        <form action={toggleAction}>
+                          <button
+                            type="submit"
+                            className="text-xs font-semibold text-sage-dark"
+                          >
+                            Set {userRow.active ? "inactive" : "active"}
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 );

@@ -15,6 +15,7 @@ import {
 import { getDailyQuote } from "@/lib/quotes";
 import { deleteActivityAction } from "@/app/actions";
 import { InstallPrompt } from "@/components/install-prompt";
+import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 // Material Icon component
 const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
@@ -78,18 +79,45 @@ const ProgressRing = ({
   );
 };
 
-export default async function DashboardPage() {
-  const { supabase, userId } = await requireSession();
-  const profile = await fetchProfile(supabase, userId);
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view_as?: string }>;
+}) {
+  const { supabase, userId: currentUserId } = await requireSession();
+  const currentProfile = await fetchProfile(supabase, currentUserId);
+  const params = await searchParams;
+
+  // Check for admin impersonation
+  const viewAsUserId = params.view_as;
+  const isImpersonating = currentProfile?.role === "admin" && viewAsUserId && viewAsUserId !== currentUserId;
+
+  // Use the target user's ID if impersonating, otherwise use current user
+  const userId = isImpersonating ? viewAsUserId : currentUserId;
+
+  // Fetch the target user's profile if impersonating
+  let profile = currentProfile;
+  let targetUserEmail = "";
+  if (isImpersonating) {
+    const adminClient = createAdminSupabaseClient();
+    const { data: targetProfile } = await adminClient
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    profile = (targetProfile as any) ?? currentProfile;
+    targetUserEmail = (targetProfile as any)?.email || "";
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const displayName =
     profile?.name ||
-    user?.user_metadata?.name ||
+    (isImpersonating ? targetUserEmail?.split("@")[0] : user?.user_metadata?.name) ||
     profile?.email?.split("@")[0] ||
-    user?.email?.split("@")[0] ||
+    (isImpersonating ? "" : user?.email?.split("@")[0]) ||
     "there";
 
   const challenge = await getActiveChallenge(supabase);
@@ -97,11 +125,14 @@ export default async function DashboardPage() {
   const week = getWeekRange(now, challenge.week_start_day);
   const weekStartIso = formatDateLocal(week.start);
 
+  // Use admin client for data fetching when impersonating
+  const dataClient = isImpersonating ? createAdminSupabaseClient() : supabase;
+
   const [weeklyResults, activities, teamProgress, rolloverKm] = await Promise.all([
-    getUserWeeklyResults(supabase, userId, challenge.id, 12),
-    getUserActivities(supabase, userId, challenge.id, 5),
+    getUserWeeklyResults(dataClient, userId, challenge.id, 12),
+    getUserActivities(dataClient, userId, challenge.id, 5),
     getTeamWeeklyProgress(supabase, challenge),
-    getUserRollover(supabase, userId, challenge.id, weekStartIso),
+    getUserRollover(dataClient, userId, challenge.id, weekStartIso),
   ]);
   const dailyQuote = getDailyQuote();
 
@@ -126,6 +157,24 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Admin Impersonation Banner */}
+      {isImpersonating && (
+        <div className="rounded-xl bg-purple-100 border border-purple-300 p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="visibility" className="text-purple-600" />
+            <span className="text-sm font-medium text-purple-800">
+              Viewing as: {profile?.name || profile?.email}
+            </span>
+          </div>
+          <Link
+            href="/dashboard"
+            className="rounded-lg bg-purple-200 px-3 py-1 text-xs font-semibold text-purple-700 hover:bg-purple-300"
+          >
+            Exit view
+          </Link>
+        </div>
+      )}
+
       {/* Hero Card with Progress Ring */}
       <div className="animate-scale-in rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover">
         <div className="flex flex-col items-center text-center">
