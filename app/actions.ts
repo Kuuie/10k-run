@@ -387,6 +387,45 @@ export const overrideWeeklyResultAction = async (
   revalidatePath("/dashboard");
 };
 
+export const createWeeklyResultAction = async (
+  userId: string,
+  weekStartDate: string,
+  weekEndDate: string
+) => {
+  const supabase = await createServerSupabaseClient();
+  const adminClient = createAdminSupabaseClient();
+  const challenge = await getActiveChallenge(supabase);
+
+  // Check if result already exists
+  const { data: existing } = await adminClient
+    .from("weekly_results")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("challenge_id", challenge.id)
+    .eq("week_start_date", weekStartDate)
+    .maybeSingle();
+
+  if (existing) {
+    return { error: "Weekly result already exists" };
+  }
+
+  // Create empty weekly result
+  await (adminClient.from("weekly_results") as any).insert({
+    user_id: userId,
+    challenge_id: challenge.id,
+    week_start_date: weekStartDate,
+    week_end_date: weekEndDate,
+    total_distance_km: 0,
+    met_target: false,
+    overridden_by_admin: false,
+    excused: false,
+    rollover_km: 0,
+  });
+
+  revalidatePath("/admin");
+  return { message: "Weekly result created" };
+};
+
 export const excuseWeekAction = async (
   resultId: string,
   excuse: boolean

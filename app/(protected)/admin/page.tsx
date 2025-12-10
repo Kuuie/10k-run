@@ -4,10 +4,12 @@ import {
   overrideWeeklyResultAction,
   toggleUserActiveAction,
   excuseWeekAction,
+  createWeeklyResultAction,
 } from "@/app/actions";
 import { requireSession, fetchProfile } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { getWeekRange, formatDateLocal } from "@/lib/week";
 
 export default async function AdminPage() {
   const { supabase, userId } = await requireSession();
@@ -21,9 +23,15 @@ export default async function AdminPage() {
     await inviteUserAction(formData);
   };
 
+  // Get current week range
+  const currentWeek = getWeekRange(new Date(), challenge.week_start_day);
+  const weekStartIso = formatDateLocal(currentWeek.start);
+  const weekEndIso = formatDateLocal(currentWeek.end);
+
   let users: any[] = [];
   let weeklyResults: any[] = [];
   let recentActivities: any[] = [];
+  let usersWithoutCurrentWeek: any[] = [];
   try {
     const adminClient = createAdminSupabaseClient();
     const [u, w, a] = await Promise.all([
@@ -38,7 +46,7 @@ export default async function AdminPage() {
         )
         .eq("challenge_id", challenge.id)
         .order("week_start_date", { ascending: false })
-        .limit(30),
+        .limit(50),
       adminClient
         .from("activities")
         .select(
@@ -54,6 +62,16 @@ export default async function AdminPage() {
     users = u.data ?? [];
     weeklyResults = w.data ?? [];
     recentActivities = a.data ?? [];
+
+    // Find active users without a weekly result for the current week
+    const usersWithCurrentWeek = new Set(
+      weeklyResults
+        .filter((wr: any) => wr.week_start_date === weekStartIso)
+        .map((wr: any) => wr.user_id)
+    );
+    usersWithoutCurrentWeek = users.filter(
+      (u: any) => u.active && !usersWithCurrentWeek.has(u.id)
+    );
   } catch (err) {
     console.error("Admin data load failed", err);
   }
@@ -234,7 +252,52 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-4">
+      {/* Users without weekly result for current week */}
+      {usersWithoutCurrentWeek.length > 0 && (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 sm:p-6 shadow-sm ring-1 ring-amber-200/50 card-hover animate-slide-up delay-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-olive">
+              No Activity This Week
+            </h2>
+            <span className="text-xs text-olive/60">
+              {weekStartIso} – {weekEndIso}
+            </span>
+          </div>
+          <p className="text-sm text-olive/70 mb-4">
+            These users haven't logged any activity. Create a weekly result to excuse them.
+          </p>
+          <div className="space-y-2">
+            {usersWithoutCurrentWeek.map((u: any) => {
+              const createAction = async () => {
+                "use server";
+                await createWeeklyResultAction(u.id, weekStartIso, weekEndIso);
+              };
+              return (
+                <div
+                  key={u.id}
+                  className="flex items-center justify-between rounded-xl border border-amber-200 bg-white p-3"
+                >
+                  <div>
+                    <span className="font-medium text-olive">
+                      {u.name || u.email}
+                    </span>
+                    {u.name && (
+                      <span className="ml-2 text-sm text-olive/60">{u.email}</span>
+                    )}
+                  </div>
+                  <form action={createAction}>
+                    <button className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200">
+                      Create week entry
+                    </button>
+                  </form>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-olive">Weekly Results</h2>
           <span className="text-xs text-olive/60">
