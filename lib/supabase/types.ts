@@ -89,6 +89,8 @@ export type Database = {
           total_distance_km: number;
           met_target: boolean;
           overridden_by_admin: boolean;
+          excused: boolean;
+          rollover_km: number;
           updated_at: string;
         };
         Insert: {
@@ -100,6 +102,8 @@ export type Database = {
           total_distance_km?: number;
           met_target?: boolean;
           overridden_by_admin?: boolean;
+          excused?: boolean;
+          rollover_km?: number;
           updated_at?: string;
         };
         Update: Partial<WeeklyResultsRow>;

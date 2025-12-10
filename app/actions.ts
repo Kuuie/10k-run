@@ -386,3 +386,38 @@ export const overrideWeeklyResultAction = async (
   revalidatePath("/leaderboard");
   revalidatePath("/dashboard");
 };
+
+export const excuseWeekAction = async (
+  resultId: string,
+  excuse: boolean
+) => {
+  const supabase = await createServerSupabaseClient();
+  const adminClient = createAdminSupabaseClient();
+
+  // Get the weekly result to calculate rollover
+  const { data: result } = await adminClient
+    .from("weekly_results")
+    .select("*, challenges(weekly_distance_target_km)")
+    .eq("id", resultId)
+    .single();
+
+  if (!result) return;
+
+  const target = Number((result as any).challenges?.weekly_distance_target_km ?? 10);
+  const actual = Number((result as any).total_distance_km ?? 0);
+  const rollover = excuse ? Math.max(0, target - actual) : 0;
+
+  await (adminClient.from("weekly_results") as any)
+    .update({
+      excused: excuse,
+      rollover_km: rollover,
+      // When excused, mark as met for streak purposes
+      met_target: excuse ? true : actual >= target,
+      overridden_by_admin: true,
+    })
+    .eq("id", resultId);
+
+  revalidatePath("/admin");
+  revalidatePath("/leaderboard");
+  revalidatePath("/dashboard");
+};

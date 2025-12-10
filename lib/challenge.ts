@@ -201,3 +201,33 @@ export const getTeamWeeklyProgress = async (
 
   return { totalKm, participantCount: participants.size };
 };
+
+export const getUserRollover = async (
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  challengeId: string,
+  currentWeekStart: string
+) => {
+  // Get all excused weeks before the current week that have rollover
+  const { data, error } = await supabase
+    .from("weekly_results")
+    .select("rollover_km, week_start_date")
+    .eq("user_id", userId)
+    .eq("challenge_id", challengeId)
+    .eq("excused", true)
+    .lt("week_start_date", currentWeekStart)
+    .gt("rollover_km", 0);
+
+  if (error) {
+    console.error("Error fetching rollover:", error);
+    return 0;
+  }
+
+  // Sum up all rollover km from excused weeks
+  const totalRollover = (data || []).reduce(
+    (sum, row) => sum + Number((row as any).rollover_km || 0),
+    0
+  );
+
+  return totalRollover;
+};

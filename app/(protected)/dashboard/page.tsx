@@ -5,6 +5,7 @@ import {
   getUserActivities,
   getUserWeeklyResults,
   getTeamWeeklyProgress,
+  getUserRollover,
 } from "@/lib/challenge";
 import {
   calculateStreak,
@@ -92,21 +93,25 @@ export default async function DashboardPage() {
     "there";
 
   const challenge = await getActiveChallenge(supabase);
-  const [weeklyResults, activities, teamProgress] = await Promise.all([
+  const now = new Date();
+  const week = getWeekRange(now, challenge.week_start_day);
+  const weekStartIso = formatDateLocal(week.start);
+
+  const [weeklyResults, activities, teamProgress, rolloverKm] = await Promise.all([
     getUserWeeklyResults(supabase, userId, challenge.id, 12),
     getUserActivities(supabase, userId, challenge.id, 5),
     getTeamWeeklyProgress(supabase, challenge),
+    getUserRollover(supabase, userId, challenge.id, weekStartIso),
   ]);
   const dailyQuote = getDailyQuote();
 
-  const now = new Date();
-  const week = getWeekRange(now, challenge.week_start_day);
   const thisWeek = weeklyResults.find(
-    (w) => w.week_start_date === formatDateLocal(week.start)
+    (w) => w.week_start_date === weekStartIso
   );
   const totalKm = Number(thisWeek?.total_distance_km ?? 0);
   const metTarget = thisWeek?.met_target ?? false;
-  const targetKm = Number(challenge.weekly_distance_target_km);
+  const baseTargetKm = Number(challenge.weekly_distance_target_km);
+  const targetKm = baseTargetKm + rolloverKm; // Include rollover in target
   const toGo = Math.max(0, targetKm - totalKm);
   const progressPct = Math.min(100, Math.round((totalKm / targetKm) * 100));
 
@@ -139,6 +144,14 @@ export default async function DashboardPage() {
           <p className="text-sm text-olive/60">
             {formatDateLocal(week.start)} – {formatDateLocal(week.end)}
           </p>
+
+          {/* Rollover indicator */}
+          {rolloverKm > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+              <Icon name="history" className="text-sm" />
+              +{rolloverKm.toFixed(1)} km rollover from excused week
+            </div>
+          )}
 
           {/* Add Activity Button */}
           <Link
