@@ -29,6 +29,21 @@ export default async function AdminPage() {
   const weekStartIso = formatDateLocal(currentWeek.start);
   const weekEndIso = formatDateLocal(currentWeek.end);
 
+  // Generate past weeks (last 8 weeks including current)
+  const pastWeeks: { start: string; end: string; label: string }[] = [];
+  for (let i = 0; i < 8; i++) {
+    const weekDate = new Date(currentWeek.start);
+    weekDate.setDate(weekDate.getDate() - i * 7);
+    const week = getWeekRange(weekDate, challenge.week_start_day);
+    const start = formatDateLocal(week.start);
+    const end = formatDateLocal(week.end);
+    pastWeeks.push({
+      start,
+      end,
+      label: `${start.slice(5)} → ${end.slice(5)}${i === 0 ? " (current)" : ""}`,
+    });
+  }
+
   let users: any[] = [];
   let weeklyResults: any[] = [];
   let recentActivities: any[] = [];
@@ -261,9 +276,66 @@ export default async function AdminPage() {
         </div>
       </section>
 
+      {/* Create weekly result for any user/week */}
+      <section className="rounded-2xl border border-purple-200 bg-purple-50/50 p-4 sm:p-6 shadow-sm ring-1 ring-purple-200/50 card-hover animate-slide-up delay-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-olive">
+            Create Week Entry
+          </h2>
+          <span className="text-xs text-olive/60">
+            For users with no activity in a week
+          </span>
+        </div>
+        <p className="text-sm text-olive/70 mb-4">
+          Create an empty weekly result so you can then excuse a user for any past week.
+        </p>
+        <form
+          action={async (formData: FormData) => {
+            "use server";
+            const userId = formData.get("userId") as string;
+            const weekData = formData.get("week") as string;
+            if (!userId || !weekData) return;
+            const [weekStart, weekEnd] = weekData.split("|");
+            await createWeeklyResultAction(userId, weekStart, weekEnd);
+          }}
+          className="grid gap-3 sm:grid-cols-3"
+        >
+          <select
+            name="userId"
+            required
+            className="rounded-xl border border-purple-200 bg-white px-3 py-2 text-sm text-olive"
+          >
+            <option value="">Select user...</option>
+            {users.filter((u: any) => u.active).map((u: any) => (
+              <option key={u.id} value={u.id}>
+                {u.name || u.email}
+              </option>
+            ))}
+          </select>
+          <select
+            name="week"
+            required
+            className="rounded-xl border border-purple-200 bg-white px-3 py-2 text-sm text-olive"
+          >
+            <option value="">Select week...</option>
+            {pastWeeks.map((w) => (
+              <option key={w.start} value={`${w.start}|${w.end}`}>
+                {w.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
+          >
+            Create entry
+          </button>
+        </form>
+      </section>
+
       {/* Users without weekly result for current week */}
       {usersWithoutCurrentWeek.length > 0 && (
-        <section className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 sm:p-6 shadow-sm ring-1 ring-amber-200/50 card-hover animate-slide-up delay-4">
+        <section className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 sm:p-6 shadow-sm ring-1 ring-amber-200/50 card-hover animate-slide-up delay-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-olive">
               No Activity This Week
