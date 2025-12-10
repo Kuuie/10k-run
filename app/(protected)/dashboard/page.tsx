@@ -16,13 +16,6 @@ import { getDailyQuote } from "@/lib/quotes";
 import { deleteActivityAction } from "@/app/actions";
 import { InstallPrompt } from "@/components/install-prompt";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import {
-  FunProgressRing,
-  FunStreakCounter,
-  FunLogButton,
-  FunActivityItem,
-  FunQuoteCard,
-} from "@/components/dashboard-fun";
 
 // Material Icon component
 const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
@@ -192,41 +185,55 @@ export default async function DashboardPage({
           </h1>
 
           {/* Progress Ring */}
-          <div className="my-6">
-            <FunProgressRing total={totalKm} target={targetKm} metTarget={metTarget} />
+          <div className="my-6 animate-bounce-in delay-1">
+            <ProgressRing progress={progressPct} total={totalKm} target={targetKm} />
           </div>
 
           {/* Week dates */}
-          <p className="text-sm text-olive/60">
+          <p className="text-sm text-olive/60 animate-fade-in delay-2">
             {formatDateLocal(week.start)} – {formatDateLocal(week.end)}
           </p>
 
           {/* Rollover indicator */}
           {rolloverKm > 0 && (
-            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 animate-slide-bounce delay-3">
               <Icon name="history" className="text-sm" />
               +{rolloverKm.toFixed(1)} km rollover from excused week
             </div>
           )}
 
           {/* Add Activity Button */}
-          <FunLogButton />
+          <Link
+            href="/activities/new"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-sage px-6 py-3 text-sm font-medium text-white shadow-lg shadow-sage/25 transition hover:bg-sage-dark press-effect animate-pop-in delay-3"
+          >
+            <Icon name="add" className="text-xl" />
+            Log Activity
+          </Link>
         </div>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="animate-slide-up delay-1 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
-          <FunStreakCounter streak={streak} />
+        <div className="animate-slide-bounce delay-1 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover hover-lift">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light animate-pop-in delay-2">
+              <Icon name="local_fire_department" className="text-xl text-sage-dark" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-olive animate-number-pop delay-3">{streak}</p>
+              <p className="text-xs text-olive/70">Week streak</p>
+            </div>
+          </div>
         </div>
 
-        <div className="animate-slide-up delay-2 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover">
+        <div className="animate-slide-bounce delay-2 rounded-xl bg-cream p-4 shadow-sm ring-1 ring-olive/10 card-hover hover-lift">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light animate-pop-in delay-3">
               <Icon name="directions_run" className="text-xl text-sage-dark" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-olive">{activities.length}</p>
+              <p className="text-2xl font-bold text-olive animate-number-pop delay-4">{activities.length}</p>
               <p className="text-xs text-olive/70">Activities</p>
             </div>
           </div>
@@ -260,19 +267,56 @@ export default async function DashboardPage({
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-cream-dark">
+          <div className="divide-y divide-cream-dark stagger-children">
             {activities.map((activity) => {
               const deleteAction = async () => {
                 "use server";
                 await deleteActivityAction(activity.id);
               };
 
+              const iconName =
+                activity.activity_type === "run"
+                  ? "directions_run"
+                  : activity.activity_type === "walk"
+                  ? "directions_walk"
+                  : "sprint";
+
               return (
-                <FunActivityItem
-                  key={activity.id}
-                  activity={activity}
-                  deleteAction={deleteAction}
-                />
+                <div key={activity.id} className="flex items-center justify-between px-4 py-3 hover-lift">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+                      <Icon name={iconName} className="text-xl text-sage-dark" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-olive">
+                        {Number(activity.distance_km).toFixed(1)} km
+                        <span className="ml-1 font-normal text-olive/70">
+                          {activity.activity_type}
+                        </span>
+                      </p>
+                      <p className="text-sm text-olive/60">
+                        {activity.activity_date}
+                        {activity.duration_minutes && ` · ${activity.duration_minutes} min`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Link
+                      href={`/activities/${activity.id}/edit`}
+                      className="rounded-full p-2 text-olive/50 hover:bg-sage-light hover:text-sage-dark press-effect"
+                    >
+                      <Icon name="edit" className="text-lg" />
+                    </Link>
+                    <form action={deleteAction}>
+                      <button
+                        type="submit"
+                        className="rounded-full p-2 text-olive/50 hover:bg-red-50 hover:text-red-500 press-effect"
+                      >
+                        <Icon name="delete" className="text-lg" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -326,7 +370,17 @@ export default async function DashboardPage({
       )}
 
       {/* Daily Motivation */}
-      <FunQuoteCard quote={dailyQuote.quote} author={dailyQuote.author} />
+      <div className="animate-slide-up delay-5 rounded-2xl bg-gradient-to-br from-sage to-sage-dark p-5 text-white shadow-lg">
+        <div className="flex items-start gap-3">
+          <Icon name="format_quote" className="text-2xl opacity-50" />
+          <div>
+            <p className="text-sm font-medium italic leading-relaxed">
+              "{dailyQuote.quote.length > 150 ? dailyQuote.quote.slice(0, 150) + '...' : dailyQuote.quote}"
+            </p>
+            <p className="mt-2 text-xs opacity-75">— {dailyQuote.author}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Install App Prompt */}
       <InstallPrompt className="animate-slide-up delay-5" />
