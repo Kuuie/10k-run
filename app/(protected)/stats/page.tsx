@@ -6,6 +6,8 @@ import {
 } from "@/lib/challenge";
 import { calculateStreak, formatDateLocal, getWeekRange } from "@/lib/week";
 import { getDailyQuote } from "@/lib/quotes";
+import { getAllBadges, getUserBadges } from "@/lib/gamification";
+import { Badge } from "@/lib/supabase/types";
 import Link from "next/link";
 
 // Material Icon component
@@ -18,11 +20,18 @@ export default async function StatsPage() {
   const profile = await fetchProfile(supabase, userId);
   const challenge = await getActiveChallenge(supabase);
 
-  // Get all activities and weekly results for comprehensive stats
-  const [activities, weeklyResults] = await Promise.all([
+  // Get all activities, weekly results, and badges for comprehensive stats
+  const [activities, weeklyResults, allBadges, userBadges] = await Promise.all([
     getUserActivities(supabase, userId, challenge.id, 1000), // Get all
     getUserWeeklyResults(supabase, userId, challenge.id, 52), // Up to a year
+    getAllBadges(supabase),
+    getUserBadges(supabase, userId),
   ]);
+
+  // Map user badges for easy lookup
+  const earnedBadgeSlugs = new Set(
+    userBadges.map((ub) => (ub.badge as Badge)?.slug).filter(Boolean)
+  );
 
   // Calculate stats
   const totalKm = activities.reduce((sum, a) => sum + Number(a.distance_km), 0);
@@ -256,57 +265,104 @@ export default async function StatsPage() {
         </div>
       </div>
 
-      {/* Milestones / Achievement Hints */}
+      {/* Badges Collection */}
       <div className="rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-5">
         <h2 className="flex items-center gap-2 font-semibold text-olive">
-          <Icon name="emoji_events" className="text-xl text-sage-dark" />
-          Next Milestones
+          <Icon name="workspace_premium" className="text-xl text-sage-dark" />
+          Badges ({userBadges.length}/{allBadges.length})
         </h2>
-        <div className="mt-4 space-y-3">
-          {totalKm < 50 && (
+
+        {/* Earned badges */}
+        {userBadges.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-olive/60 mb-2">Earned</p>
+            <div className="flex flex-wrap gap-2">
+              {userBadges.map((ub) => {
+                const badge = ub.badge as Badge;
+                if (!badge) return null;
+                return (
+                  <div
+                    key={ub.id}
+                    className="group relative flex items-center gap-2 rounded-full bg-gradient-to-r from-sage to-sage-dark px-3 py-1.5 text-white shadow-sm animate-pop-in"
+                    title={badge.description}
+                  >
+                    <Icon name={badge.icon} className="text-base" />
+                    <span className="text-sm font-medium">{badge.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Locked badges */}
+        <div className="mt-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-olive/60 mb-2">
+            {userBadges.length > 0 ? 'Locked' : 'Available Badges'}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {allBadges
+              .filter((badge) => !earnedBadgeSlugs.has(badge.slug))
+              .map((badge) => (
+                <div
+                  key={badge.id}
+                  className="flex items-center gap-2 rounded-full bg-cream-dark px-3 py-1.5 text-olive/50"
+                  title={badge.description}
+                >
+                  <Icon name={badge.icon} className="text-base opacity-50" />
+                  <span className="text-sm">{badge.name}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        {/* Next badge hints */}
+        <div className="mt-6 space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-olive/60">Next Up</p>
+          {!earnedBadgeSlugs.has('first_activity') && (
+            <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
+              <Icon name="directions_run" className="text-sage-dark" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-olive">First Steps</p>
+                <p className="text-xs text-olive/70">Log your first activity</p>
+              </div>
+            </div>
+          )}
+          {earnedBadgeSlugs.has('first_activity') && !earnedBadgeSlugs.has('10k_club') && (
+            <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
+              <Icon name="emoji_events" className="text-sage-dark" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-olive">10K Club</p>
+                <p className="text-xs text-olive/70">{Math.max(0, 10 - totalKm).toFixed(1)} km to go</p>
+              </div>
+              <div className="text-xs text-sage-dark">{Math.min(100, Math.round((totalKm / 10) * 100))}%</div>
+            </div>
+          )}
+          {earnedBadgeSlugs.has('10k_club') && !earnedBadgeSlugs.has('distance_50') && (
             <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
               <Icon name="straighten" className="text-sage-dark" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-olive">Half Century</p>
-                <p className="text-xs text-olive/70">{(50 - totalKm).toFixed(1)} km to go</p>
+                <p className="text-xs text-olive/70">{Math.max(0, 50 - totalKm).toFixed(1)} km to go</p>
               </div>
-              <div className="text-xs text-sage-dark">{Math.round((totalKm / 50) * 100)}%</div>
+              <div className="text-xs text-sage-dark">{Math.min(100, Math.round((totalKm / 50) * 100))}%</div>
             </div>
           )}
-          {totalKm >= 50 && totalKm < 100 && (
+          {!earnedBadgeSlugs.has('streak_2') && (
             <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
-              <Icon name="workspace_premium" className="text-sage-dark" />
+              <Icon name="whatshot" className="text-sage-dark" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-olive">Century Club</p>
-                <p className="text-xs text-olive/70">{(100 - totalKm).toFixed(1)} km to go</p>
+                <p className="text-sm font-medium text-olive">Getting Started</p>
+                <p className="text-xs text-olive/70">{Math.max(0, 2 - streak)} more week(s) streak</p>
               </div>
-              <div className="text-xs text-sage-dark">{Math.round((totalKm / 100) * 100)}%</div>
             </div>
           )}
-          {streak < 3 && (
+          {earnedBadgeSlugs.has('streak_2') && !earnedBadgeSlugs.has('streak_3') && (
             <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
               <Icon name="local_fire_department" className="text-sage-dark" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-olive">On Fire (3 week streak)</p>
-                <p className="text-xs text-olive/70">{3 - streak} more week(s) to go</p>
-              </div>
-            </div>
-          )}
-          {streak >= 3 && streak < 5 && (
-            <div className="flex items-center gap-3 rounded-lg bg-sage-light/30 p-3">
-              <Icon name="bolt" className="text-sage-dark" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-olive">Unstoppable (5 week streak)</p>
-                <p className="text-xs text-olive/70">{5 - streak} more week(s) to go</p>
-              </div>
-            </div>
-          )}
-          {totalKm >= 100 && streak >= 5 && (
-            <div className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-amber-50 to-amber-100 p-3 ring-1 ring-amber-200">
-              <Icon name="stars" className="text-amber-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-amber-800">You're crushing it!</p>
-                <p className="text-xs text-amber-700">Keep up the amazing work</p>
+                <p className="text-sm font-medium text-olive">On Fire</p>
+                <p className="text-xs text-olive/70">{Math.max(0, 3 - streak)} more week(s) streak</p>
               </div>
             </div>
           )}

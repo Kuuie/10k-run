@@ -14,6 +14,18 @@ import {
 import { CheckIcon, XIcon } from "@/components/icons";
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
 
+// Get badge counts for all users
+async function getUserBadgeCounts(supabase: ReturnType<typeof createServiceSupabaseClient>) {
+  const { data } = await (supabase.from("user_badges") as any)
+    .select("user_id");
+
+  const counts: Record<string, number> = {};
+  for (const row of (data || []) as { user_id: string }[]) {
+    counts[row.user_id] = (counts[row.user_id] || 0) + 1;
+  }
+  return counts;
+}
+
 // Material Icon component
 const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
   <span className={`material-icons-round ${className}`}>{name}</span>
@@ -55,9 +67,10 @@ export default async function LeaderboardPage() {
   const challenge = await getActiveChallenge(supabase);
   const currentWeek = getWeekRange(new Date(), challenge.week_start_day);
 
-  const [weekly, overall] = await Promise.all([
+  const [weekly, overall, badgeCounts] = await Promise.all([
     getCurrentWeekLeaderboard(supabase, challenge),
     getOverallStats(supabase, challenge),
+    getUserBadgeCounts(supabase),
   ]);
 
   const overallWithStreak = overall
@@ -68,11 +81,23 @@ export default async function LeaderboardPage() {
         new Date(challenge.start_date),
         challenge.week_start_day
       ),
+      badgeCount: badgeCounts[row.userId] || 0,
     }))
     .sort((a, b) => {
       if (b.totalKm !== a.totalKm) return b.totalKm - a.totalKm;
       return (b.streak ?? 0) - (a.streak ?? 0);
     });
+
+  // Find MVPs
+  const topStreak = overallWithStreak.length > 0
+    ? overallWithStreak.reduce((a, b) => (b.streak > a.streak ? b : a))
+    : null;
+  const topBadges = overallWithStreak.length > 0
+    ? overallWithStreak.reduce((a, b) => (b.badgeCount > a.badgeCount ? b : a))
+    : null;
+  const mostImproved = weekly.length > 1
+    ? weekly.reduce((a, b) => (b.total > a.total ? b : a))
+    : null;
 
   return (
     <div className="space-y-6">
@@ -86,7 +111,33 @@ export default async function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-1">
+      {/* MVP Cards */}
+      {(topStreak?.streak || topBadges?.badgeCount) && (
+        <div className="grid grid-cols-2 gap-3 animate-slide-up delay-1">
+          {topStreak && topStreak.streak > 0 && (
+            <div className="rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 p-4 ring-1 ring-orange-200">
+              <div className="flex items-center gap-2 text-orange-600 mb-2">
+                <Icon name="local_fire_department" className="text-xl" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Top Streak</span>
+              </div>
+              <p className="font-semibold text-olive truncate">{topStreak.name}</p>
+              <p className="text-2xl font-bold text-orange-700">{topStreak.streak} weeks</p>
+            </div>
+          )}
+          {topBadges && topBadges.badgeCount > 0 && (
+            <div className="rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 p-4 ring-1 ring-purple-200">
+              <div className="flex items-center gap-2 text-purple-600 mb-2">
+                <Icon name="workspace_premium" className="text-xl" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Most Badges</span>
+              </div>
+              <p className="font-semibold text-olive truncate">{topBadges.name}</p>
+              <p className="text-2xl font-bold text-purple-700">{topBadges.badgeCount} badges</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-olive">This week</h2>
           <span className="text-xs text-olive/60">
@@ -156,7 +207,7 @@ export default async function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-2">
+      <div className="rounded-2xl border border-cream-dark bg-cream p-4 sm:p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-3">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-olive">Overall</h2>
           <span className="text-xs text-olive/60">
@@ -201,10 +252,18 @@ export default async function LeaderboardPage() {
                   {/* Stats */}
                   <div className="text-right flex-shrink-0">
                     <p className="font-semibold text-olive">{Number(row.totalKm).toFixed(1)} km</p>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-sage-dark">
-                      <Icon name="local_fire_department" className="text-sm text-orange-500" />
-                      {row.streak} week{row.streak !== 1 ? "s" : ""}
-                    </span>
+                    <div className="flex items-center justify-end gap-2 text-xs font-medium text-sage-dark">
+                      <span className="inline-flex items-center gap-0.5">
+                        <Icon name="local_fire_department" className="text-sm text-orange-500" />
+                        {row.streak}
+                      </span>
+                      {row.badgeCount > 0 && (
+                        <span className="inline-flex items-center gap-0.5 text-purple-600">
+                          <Icon name="workspace_premium" className="text-sm" />
+                          {row.badgeCount}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

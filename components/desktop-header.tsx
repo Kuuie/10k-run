@@ -28,6 +28,12 @@ export function DesktopHeader({ isAdmin, initials, signOutAction }: DesktopHeade
               Dashboard
             </Link>
             <Link
+              href="/feed"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-olive/70 hover:bg-sage-light/50 hover:text-olive"
+            >
+              Feed
+            </Link>
+            <Link
               href="/stats"
               className="rounded-lg px-3 py-2 text-sm font-medium text-olive/70 hover:bg-sage-light/50 hover:text-olive"
             >

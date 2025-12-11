@@ -169,6 +169,42 @@ export type TeamGoal = {
   created_at: string;
 };
 
+export type PersonalBest = {
+  id: string;
+  user_id: string;
+  challenge_id: string;
+  record_type: "longest_activity" | "fastest_pace" | "most_weekly_km" | "longest_streak";
+  value: number;
+  achieved_at: string;
+  activity_id: string | null;
+};
+
+export type WeeklyChallenge = {
+  id: string;
+  challenge_id: string;
+  week_start_date: string;
+  challenge_type: "distance_boost" | "consistency" | "group_goal" | "beat_your_best";
+  target_value: number;
+  description: string;
+};
+
+export type UserChallengeCompletion = {
+  id: string;
+  user_id: string;
+  weekly_challenge_id: string;
+  completed_at: string;
+};
+
+export type ActivityFeedItem = {
+  id: string;
+  challenge_id: string;
+  user_id: string;
+  event_type: "activity" | "badge" | "streak" | "pb" | "challenge" | "cheer";
+  event_data: Record<string, unknown>;
+  created_at: string;
+  user?: { name: string | null; email: string };
+};
+
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];
 

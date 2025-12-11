@@ -1,6 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <!-- Background with rounded corners -->
   <rect width="192" height="192" rx="42" fill="#84a98c"/>
-  <path d="M32 68 L32 132 L46 132 L46 68 L32 68 M32 54 L46 68 L32 68 Z" fill="white"/>
-  <ellipse cx="80" cy="96" rx="22" ry="36" fill="none" stroke="white" stroke-width="12"/>
-  <path d="M118 132 L118 54 L132 54 L132 88 L156 54 L174 54 L148 90 L176 132 L158 132 L136 98 L132 104 L132 132 Z" fill="white"/>
+
+  <!-- Runner silhouette -->
+  <g fill="white" transform="translate(96, 96)">
+    <!-- Head -->
+    <circle cx="28" cy="-42" r="12"/>
+    <!-- Body/torso -->
+    <path d="M18 -28 L8 8 L18 8 L28 -18 L38 8 L48 8 L38 -28 L28 -30 Z"/>
+    <!-- Back leg (extended behind) -->
+    <path d="M8 8 L-18 42 L-8 48 L18 18 Z"/>
+    <!-- Front leg (forward stride) -->
+    <path d="M38 8 L58 48 L48 52 L28 18 Z"/>
+    <!-- Back arm -->
+    <path d="M18 -22 L-8 -8 L-4 0 L22 -14 Z"/>
+    <!-- Front arm -->
+    <path d="M32 -22 L52 -38 L56 -30 L36 -14 Z"/>
+  </g>
+
+  <!-- 10K text at bottom -->
+  <text x="96" y="172" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="bold" fill="white">10K</text>
 </svg>

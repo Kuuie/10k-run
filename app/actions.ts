@@ -460,3 +460,72 @@ export const excuseWeekAction = async (
   revalidatePath("/leaderboard");
   revalidatePath("/dashboard");
 };
+
+// Gamification actions
+import {
+  checkAndAwardBadges,
+  addCheer as addCheerLib,
+  removeCheer as removeCheerLib,
+  addActivityToFeed,
+  updatePersonalBest,
+} from "@/lib/gamification";
+import { getWeekRange, formatDateLocal } from "@/lib/week";
+
+export const cheerActivityAction = async (
+  activityId: string,
+  emoji: string
+) => {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { error: "Not authenticated" };
+
+  await addCheerLib(supabase, activityId, session.user.id, emoji);
+  revalidatePath("/dashboard");
+  revalidatePath("/feed");
+  return { success: true };
+};
+
+export const removeCheerAction = async (activityId: string) => {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { error: "Not authenticated" };
+
+  await removeCheerLib(supabase, activityId, session.user.id);
+  revalidatePath("/dashboard");
+  revalidatePath("/feed");
+  return { success: true };
+};
+
+export const checkBadgesAction = async () => {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { newBadges: [] };
+
+  const challenge = await getActiveChallenge(supabase);
+  const now = new Date();
+  const week = getWeekRange(now, challenge.week_start_day);
+  const weekStartIso = formatDateLocal(week.start);
+  const weekEndIso = formatDateLocal(week.end);
+
+  const newBadges = await checkAndAwardBadges(
+    supabase,
+    session.user.id,
+    challenge.id,
+    weekStartIso,
+    weekEndIso,
+    Number(challenge.weekly_distance_target_km)
+  );
+
+  if (newBadges.length > 0) {
+    revalidatePath("/stats");
+    revalidatePath("/dashboard");
+  }
+
+  return { newBadges };
+};

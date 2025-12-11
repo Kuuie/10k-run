@@ -16,6 +16,7 @@ import { getDailyQuote } from "@/lib/quotes";
 import { deleteActivityAction } from "@/app/actions";
 import { InstallPrompt } from "@/components/install-prompt";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { BadgeChecker } from "@/components/badge-checker";
 
 // Material Icon component
 const Icon = ({ name, className = "" }: { name: string; className?: string }) => (
@@ -157,6 +158,9 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
+      {/* Badge Checker - will show toasts for new badges */}
+      <BadgeChecker />
+
       {/* Admin Impersonation Banner */}
       {isImpersonating && (
         <div className="rounded-xl bg-purple-100 border border-purple-300 p-3 flex items-center justify-between">

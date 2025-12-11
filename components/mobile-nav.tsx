@@ -13,6 +13,7 @@ export function MobileNav({ isAdmin }: { isAdmin?: boolean }) {
 
   const links = [
     { href: "/dashboard", label: "Home", icon: "home" },
+    { href: "/feed", label: "Feed", icon: "dynamic_feed" },
     { href: "/stats", label: "Stats", icon: "insights" },
     { href: "/leaderboard", label: "Board", icon: "leaderboard" },
     { href: "/profile", label: "Profile", icon: "person" },
