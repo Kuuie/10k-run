@@ -8,6 +8,7 @@ import { calculateStreak, formatDateLocal, getWeekRange } from "@/lib/week";
 import { getDailyQuote } from "@/lib/quotes";
 import { getAllBadges, getUserBadges } from "@/lib/gamification";
 import { Badge } from "@/lib/supabase/types";
+import { DailyActivityChart } from "@/components/daily-activity-chart";
 import Link from "next/link";
 
 // Material Icon component
@@ -179,9 +180,20 @@ export default async function StatsPage() {
         </div>
       </div>
 
+      {/* Daily Activity Chart (Paginated) */}
+      <div className="animate-slide-up delay-3">
+        <DailyActivityChart
+          activities={activities.map(a => ({
+            activity_date: a.activity_date,
+            distance_km: Number(a.distance_km),
+            activity_type: a.activity_type,
+          }))}
+        />
+      </div>
+
       {/* Weekly Trend Chart */}
       {recentWeeks.length > 0 && (
-        <div className="rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-3">
+        <div className="rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-4">
           <h2 className="flex items-center gap-2 font-semibold text-olive">
             <Icon name="trending_up" className="text-xl text-sage-dark" />
             Weekly Trend
@@ -219,7 +231,7 @@ export default async function StatsPage() {
 
       {/* Activity Breakdown */}
       {Object.keys(byType).length > 0 && (
-        <div className="rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-4">
+        <div className="rounded-2xl bg-cream p-6 shadow-sm ring-1 ring-olive/10 card-hover animate-slide-up delay-5">
           <h2 className="flex items-center gap-2 font-semibold text-olive">
             <Icon name="pie_chart" className="text-xl text-sage-dark" />
             Activity Breakdown
