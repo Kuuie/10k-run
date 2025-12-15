@@ -283,13 +283,24 @@ export default async function DashboardPage({
                   ? "directions_run"
                   : activity.activity_type === "walk"
                   ? "directions_walk"
+                  : activity.activity_type === "hike"
+                  ? "hiking"
                   : "sprint";
+
+              const isStrava = (activity as any).source === "strava";
 
               return (
                 <div key={activity.id} className="flex items-center justify-between px-4 py-3 hover-lift">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-sage-light">
                       <Icon name={iconName} className="text-xl text-sage-dark" />
+                      {isStrava && (
+                        <div className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#FC4C02]" title="From Strava">
+                          <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="white">
+                            <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <p className="font-medium text-olive">

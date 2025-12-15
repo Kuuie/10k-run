@@ -342,6 +342,18 @@ export const updateProfileAction = async (formData: FormData) => {
   revalidatePath("/profile");
 };
 
+export const disconnectStravaAction = async () => {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return { error: "Not authenticated" };
+
+  await supabase.from("strava_connections").delete().eq("user_id", session.user.id);
+  revalidatePath("/profile");
+  return { success: true };
+};
+
 export const inviteUserAction = async (formData: FormData) => {
   const adminClient = createAdminSupabaseClient();
   const email = String(formData.get("email") ?? "").trim();

@@ -58,9 +58,11 @@ export type Database = {
           activity_date: string;
           distance_km: number;
           duration_minutes: number | null;
-          activity_type: "run" | "walk" | "jog";
+          activity_type: "run" | "walk" | "jog" | "hike" | "other";
           proof_url: string | null;
           screenshot_url: string | null;
+          source: "manual" | "strava";
+          strava_activity_id: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -71,9 +73,11 @@ export type Database = {
           activity_date: string;
           distance_km: number;
           duration_minutes?: number | null;
-          activity_type: "run" | "walk" | "jog";
+          activity_type: "run" | "walk" | "jog" | "hike" | "other";
           proof_url?: string | null;
           screenshot_url?: string | null;
+          source?: "manual" | "strava";
+          strava_activity_id?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -111,7 +115,8 @@ export type Database = {
     };
     Enums: {
       role: "admin" | "user";
-      activity_type: "run" | "walk" | "jog";
+      activity_type: "run" | "walk" | "jog" | "hike" | "other";
+      activity_source: "manual" | "strava";
     };
   };
 };
@@ -157,8 +162,19 @@ export type ActivityPreset = {
   name: string;
   distance_km: number;
   duration_minutes: number | null;
-  activity_type: "run" | "walk" | "jog";
+  activity_type: "run" | "walk" | "jog" | "hike" | "other";
   created_at: string;
+};
+
+export type StravaConnection = {
+  id: string;
+  user_id: string;
+  strava_athlete_id: number;
+  access_token: string;
+  refresh_token: string;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type TeamGoal = {

@@ -2,7 +2,8 @@
 -- Run this in Supabase SQL editor or via `supabase db push`.
 
 create type public.role as enum ('admin', 'user');
-create type public.activity_type as enum ('run', 'walk', 'jog');
+create type public.activity_type as enum ('run', 'walk', 'jog', 'hike', 'other');
+create type public.activity_source as enum ('manual', 'strava');
 
 create table if not exists public.users (
   id uuid primary key,
@@ -34,6 +35,8 @@ create table if not exists public.activities (
   activity_type public.activity_type not null,
   proof_url text,
   screenshot_url text,
+  source public.activity_source not null default 'manual',
+  strava_activity_id bigint unique,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -205,10 +208,24 @@ create table if not exists public.team_goals (
   unique (challenge_id, week_start_date)
 );
 
+-- Strava integration
+create table if not exists public.strava_connections (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.users(id) on delete cascade unique not null,
+  strava_athlete_id bigint not null,
+  access_token text not null,
+  refresh_token text not null,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- Indexes
 create index if not exists user_badges_user_idx on public.user_badges (user_id);
 create index if not exists activity_cheers_activity_idx on public.activity_cheers (activity_id);
 create index if not exists activity_presets_user_idx on public.activity_presets (user_id);
+create index if not exists strava_connections_user_idx on public.strava_connections (user_id);
+create index if not exists activities_strava_id_idx on public.activities (strava_activity_id) where strava_activity_id is not null;
 
 -- RLS for new tables
 alter table public.badges enable row level security;
@@ -216,6 +233,7 @@ alter table public.user_badges enable row level security;
 alter table public.activity_cheers enable row level security;
 alter table public.activity_presets enable row level security;
 alter table public.team_goals enable row level security;
+alter table public.strava_connections enable row level security;
 
 -- Everyone can read badges
 create policy "Anyone can read badges" on public.badges for select using (true);
@@ -237,6 +255,16 @@ create policy "Users can manage own presets" on public.activity_presets
 
 -- Everyone can read team goals
 create policy "Anyone can read team goals" on public.team_goals for select using (true);
+
+-- Users can manage their own Strava connection
+create policy "Users can read own strava connection" on public.strava_connections
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own strava connection" on public.strava_connections
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own strava connection" on public.strava_connections
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own strava connection" on public.strava_connections
+  for delete using (auth.uid() = user_id);
 
 -- Seed default badges
 insert into public.badges (slug, name, description, icon, category, threshold_value) values
