@@ -38,10 +38,28 @@ export const recomputeWeeklyResult = async (
     .eq("week_start_date", startIso)
     .maybeSingle();
 
+  // Get rollover from excused weeks prior to this week
+  const { data: excusedWeeks } = await supabase
+    .from("weekly_results")
+    .select("id, rollover_km")
+    .eq("user_id", userId)
+    .eq("challenge_id", challenge.id)
+    .eq("excused", true)
+    .lt("week_start_date", startIso)
+    .gt("rollover_km", 0);
+
+  const totalRollover = (excusedWeeks || []).reduce(
+    (sum, row) => sum + Number((row as any).rollover_km || 0),
+    0
+  );
+
+  const baseTarget = Number(challenge.weekly_distance_target_km);
+  const targetWithRollover = baseTarget + totalRollover;
+
   const metTarget =
     (existing as any)?.overridden_by_admin && (existing as any)?.met_target !== null
       ? (existing as any)?.met_target
-      : total >= Number(challenge.weekly_distance_target_km);
+      : total >= targetWithRollover;
 
   const { error: upsertError } = await supabase
     .from("weekly_results")
@@ -57,4 +75,12 @@ export const recomputeWeeklyResult = async (
     } as any);
 
   if (upsertError) throw upsertError;
+
+  // If user met target including rollover, clear the rollover from excused weeks
+  if (total >= targetWithRollover && excusedWeeks && excusedWeeks.length > 0) {
+    const excusedIds = excusedWeeks.map((w) => (w as any).id);
+    await (supabase.from("weekly_results") as any)
+      .update({ rollover_km: 0 })
+      .in("id", excusedIds);
+  }
 };

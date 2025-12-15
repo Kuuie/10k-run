@@ -6,6 +6,7 @@ import {
   toggleUserActiveAction,
   excuseWeekAction,
   createWeeklyResultAction,
+  clearRolloverAction,
 } from "@/app/actions";
 import { requireSession, fetchProfile } from "@/lib/auth";
 import { getActiveChallenge } from "@/lib/challenge";
@@ -405,6 +406,10 @@ export default async function AdminPage() {
               "use server";
               await excuseWeekAction(wrRow.id, false);
             };
+            const clearRollover = async () => {
+              "use server";
+              await clearRolloverAction(wrRow.id);
+            };
             const user = wrRow.users;
             const isExcused = wrRow.excused;
             const rollover = Number(wrRow.rollover_km ?? 0);
@@ -442,8 +447,17 @@ export default async function AdminPage() {
                       </span>
                       <span>{wrRow.met_target ? "✅" : "❌"}</span>
                       {rollover > 0 && (
-                        <span className="text-amber-600 text-xs">
+                        <span className="inline-flex items-center gap-1 text-amber-600 text-xs">
                           +{rollover.toFixed(1)} km rollover
+                          <form action={clearRollover} className="inline">
+                            <button
+                              type="submit"
+                              className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 hover:bg-amber-200"
+                              title="Clear rollover"
+                            >
+                              Clear
+                            </button>
+                          </form>
                         </span>
                       )}
                     </div>

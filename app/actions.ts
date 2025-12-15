@@ -461,6 +461,18 @@ export const excuseWeekAction = async (
   revalidatePath("/dashboard");
 };
 
+export const clearRolloverAction = async (resultId: string) => {
+  const adminClient = createAdminSupabaseClient();
+
+  await (adminClient.from("weekly_results") as any)
+    .update({ rollover_km: 0 })
+    .eq("id", resultId);
+
+  revalidatePath("/admin");
+  revalidatePath("/leaderboard");
+  revalidatePath("/dashboard");
+};
+
 // Gamification actions
 import {
   checkAndAwardBadges,

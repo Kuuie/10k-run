@@ -222,6 +222,8 @@ create policy "Anyone can read badges" on public.badges for select using (true);
 
 -- Users can read all user_badges (for leaderboard display)
 create policy "Anyone can read user badges" on public.user_badges for select using (true);
+-- Users can earn badges (insert for themselves)
+create policy "Users can earn badges" on public.user_badges for insert with check (auth.uid() = user_id);
 
 -- Users can read cheers on any activity
 create policy "Anyone can read cheers" on public.activity_cheers for select using (true);
