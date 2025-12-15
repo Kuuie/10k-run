@@ -18,12 +18,24 @@ export async function GET(request: Request) {
 
   const verifyToken = process.env.STRAVA_WEBHOOK_VERIFY_TOKEN;
 
+  // Debug: log what we're comparing
+  console.log("Strava verify - mode:", mode, "token:", token, "expected:", verifyToken, "match:", token === verifyToken);
+
   if (mode === "subscribe" && token === verifyToken) {
     console.log("Strava webhook verified");
     return NextResponse.json({ "hub.challenge": challenge });
   }
 
-  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // Return more info for debugging
+  return NextResponse.json({
+    error: "Forbidden",
+    debug: {
+      mode,
+      tokenReceived: !!token,
+      tokenExpected: !!verifyToken,
+      match: token === verifyToken
+    }
+  }, { status: 403 });
 }
 
 // Strava webhook events (POST request)
