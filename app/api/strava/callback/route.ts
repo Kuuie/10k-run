@@ -2,13 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/supabase/types";
-import {
-  exchangeStravaCode,
-  fetchStravaActivities,
-  stravaActivityToPayload,
-} from "@/lib/strava";
-import { getActiveChallenge } from "@/lib/challenge";
-import { recomputeWeeklyResult } from "@/lib/weekly";
+import { exchangeStravaCode } from "@/lib/strava";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -71,49 +65,7 @@ export async function GET(request: Request) {
       { onConflict: "user_id" }
     );
 
-    // Import recent activities (last 30 days)
-    const thirtyDaysAgo = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60;
-    const activities = await fetchStravaActivities(
-      tokenData.access_token,
-      thirtyDaysAgo,
-      50
-    );
-
-    if (activities.length > 0) {
-      const challenge = await getActiveChallenge(supabase);
-
-      for (const activity of activities) {
-        // Skip if activity already imported
-        const { data: existing } = await supabase
-          .from("activities")
-          .select("id")
-          .eq("strava_activity_id", activity.id)
-          .maybeSingle();
-
-        if (existing) continue;
-
-        // Create activity
-        const payload = stravaActivityToPayload(
-          activity,
-          session.user.id,
-          challenge.id
-        );
-
-        const { error: insertError } = await supabase
-          .from("activities")
-          .insert(payload as any);
-
-        if (!insertError) {
-          // Recompute weekly result
-          await recomputeWeeklyResult(supabase, {
-            userId: session.user.id,
-            challenge,
-            activityDate: payload.activity_date,
-          });
-        }
-      }
-    }
-
+    // New activities will be imported via webhook going forward
     return response;
   } catch (err) {
     console.error("Strava connection error:", err);
