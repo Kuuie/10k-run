@@ -44,8 +44,7 @@ export function mapStravaType(stravaType: string): ActivityType {
 
 // Get the Strava OAuth URL
 export function getStravaAuthUrl(redirectUri: string): string {
-  const clientId = process.env.STRAVA_CLIENT_ID;
-  if (!clientId) throw new Error("STRAVA_CLIENT_ID not configured");
+  const clientId = process.env.STRAVA_CLIENT_ID || "190235";
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -60,12 +59,8 @@ export function getStravaAuthUrl(redirectUri: string): string {
 
 // Exchange authorization code for tokens
 export async function exchangeStravaCode(code: string): Promise<StravaTokenResponse> {
-  const clientId = process.env.STRAVA_CLIENT_ID;
-  const clientSecret = process.env.STRAVA_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    throw new Error("Strava credentials not configured");
-  }
+  const clientId = process.env.STRAVA_CLIENT_ID || "190235";
+  const clientSecret = process.env.STRAVA_CLIENT_SECRET || "cd3351411fd09529957eaea0eee945bd3b39bf2d";
 
   const response = await fetch(`${STRAVA_OAUTH_BASE}/token`, {
     method: "POST",
@@ -92,12 +87,8 @@ export async function refreshStravaToken(refreshToken: string): Promise<{
   refresh_token: string;
   expires_at: number;
 }> {
-  const clientId = process.env.STRAVA_CLIENT_ID;
-  const clientSecret = process.env.STRAVA_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    throw new Error("Strava credentials not configured");
-  }
+  const clientId = process.env.STRAVA_CLIENT_ID || "190235";
+  const clientSecret = process.env.STRAVA_CLIENT_SECRET || "cd3351411fd09529957eaea0eee945bd3b39bf2d";
 
   const response = await fetch(`${STRAVA_OAUTH_BASE}/token`, {
     method: "POST",
