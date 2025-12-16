@@ -4,9 +4,8 @@ import { getStravaAuthUrl } from "@/lib/strava";
 export async function GET(request: Request) {
   const { origin } = new URL(request.url);
 
-  // Use SITE_URL if available, otherwise use request origin
-  const siteUrl = process.env.SITE_URL || origin;
-  const redirectUri = `${siteUrl}/api/strava/callback`;
+  // Hardcode to match Strava API settings
+  const redirectUri = "https://10k-run.vercel.app/api/strava/callback";
 
   try {
     const authUrl = getStravaAuthUrl(redirectUri);
