@@ -16,7 +16,8 @@ export async function GET(request: Request) {
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  const verifyToken = process.env.STRAVA_WEBHOOK_VERIFY_TOKEN;
+  // Fallback to hardcoded token if env var not available
+  const verifyToken = process.env.STRAVA_WEBHOOK_VERIFY_TOKEN || "metabonetworkfanlight";
 
   // Debug: log what we're comparing
   console.log("Strava verify - mode:", mode, "token:", token, "expected:", verifyToken, "match:", token === verifyToken);
